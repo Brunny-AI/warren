@@ -20,18 +20,25 @@
  *   id — DOM id suffix. Pass a unique value per form instance
  *        on a page. Defaults to 'signup' (sufficient for
  *        pages with one form).
+ *   source — page-scoped identifier the backend uses for
+ *        source-aware redirects (303 lands back on the
+ *        originating page) and per-source D1 provenance.
+ *        Allowlist enforced server-side; unknown values
+ *        fall back to 'products'. Defaults to 'products'.
  *   submitLabel — button text; defaults to 'notify me'.
  *   initialStatus — { text, kind: 'ok' | 'err' } | null;
  *        pre-render from host page's ?signup= check.
  */
 interface Props {
   readonly id?: string;
+  readonly source?: string;
   readonly submitLabel?: string;
   readonly initialStatus?: { text: string; kind: 'ok' | 'err' } | null;
 }
 
 const {
   id = 'signup',
+  source = 'products',
   submitLabel = 'notify me',
   initialStatus = null,
 } = Astro.props;
@@ -48,6 +55,7 @@ const emailId = `${id}-email`;
   method='post'
 >
   <label for={emailId} class='visually-hidden'>email</label>
+  <input type='hidden' name='source' value={source} />
   <input
     id={emailId}
     name='email'
@@ -66,7 +74,7 @@ const emailId = `${id}-email`;
   </p>
 </form>
 
-<script define:vars={{ formId, statusId, submitId }}>
+<script define:vars={{ formId, statusId, submitId, source }}>
   const form = document.getElementById(formId);
   const status = document.getElementById(statusId);
   const submit = document.getElementById(submitId);
@@ -82,7 +90,7 @@ const emailId = `${id}-email`;
         const res = await fetch('/api/signup', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email, source }),
         });
         const data = await res.json();
         if (res.ok && data.ok) {

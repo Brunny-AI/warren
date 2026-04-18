@@ -6,7 +6,14 @@ export const prerender = false;
 
 const RESEND_URL = 'https://api.resend.com/emails';
 const RESEND_TIMEOUT_MS = 5_000;
-const SOURCE_DEFAULT = 'products-page';
+
+// Allowlisted source pages. Unknown values from the form are
+// coerced to SOURCE_DEFAULT rather than trusted verbatim —
+// prevents open-redirect via a forged hidden field, and keeps
+// D1 `source` column bounded for downstream funnel queries.
+const SOURCES = ['products', 'contact'] as const;
+type Source = (typeof SOURCES)[number];
+const SOURCE_DEFAULT: Source = 'products';
 
 // Per-IP cap on signup attempts. Picked generous enough that a
 // real human bouncing between /products and /contact forms plus
@@ -25,11 +32,37 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   const isJson = mediaType === 'application/json';
   const wantsHtml = !isJson;
 
-  // Rate-limit per client IP before doing any parse/validate
-  // work. Cloudflare sets cf-connecting-ip itself and strips
-  // any client-supplied value, so it's trusted in this runtime.
-  // Local dev / tests without the header key under 'unknown'
-  // (still gives a bounded bucket).
+  let raw: string | null = null;
+  let rawSource: string | null = null;
+  if (isJson) {
+    try {
+      const body = await request.json();
+      if (typeof body === 'object' && body !== null) {
+        const b = body as Record<string, unknown>;
+        if (typeof b.email === 'string') raw = b.email;
+        if (typeof b.source === 'string') rawSource = b.source;
+      }
+    } catch {
+      return json({ error: 'invalid json' }, 400);
+    }
+  } else {
+    const form = await request.formData();
+    const v = form.get('email');
+    if (typeof v === 'string') raw = v;
+    const s = form.get('source');
+    if (typeof s === 'string') rawSource = s;
+  }
+
+  const source: Source = pickSource(rawSource);
+
+  // Rate-limit per client IP AFTER body parse so the redirect
+  // target can be source-aware. Body parse cost on a limited
+  // request is negligible (< 1ms for a small JSON/form body),
+  // and keeping UX consistent with the rest of the error paths
+  // is worth it. Cloudflare sets cf-connecting-ip itself and
+  // strips any client-supplied value, so it's trusted in this
+  // runtime. Local dev / tests without the header key under
+  // 'unknown' (still gives a bounded bucket).
   const env = locals.runtime?.env;
   const clientIp =
     request.headers.get('cf-connecting-ip') ?? 'unknown';
@@ -40,45 +73,28 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   });
   if (!rl.allowed) {
     return wantsHtml
-      ? redirect('/products?signup=rate_limited', 303)
+      ? redirect(`/${source}?signup=rate_limited`, 303)
       : json(
           { error: 'too many signup attempts. try again in an hour.' },
           429,
         );
   }
 
-  let raw: string | null = null;
-  if (isJson) {
-    try {
-      const body = await request.json();
-      if (typeof body === 'object' && body !== null) {
-        const v = (body as Record<string, unknown>).email;
-        if (typeof v === 'string') raw = v;
-      }
-    } catch {
-      return json({ error: 'invalid json' }, 400);
-    }
-  } else {
-    const form = await request.formData();
-    const v = form.get('email');
-    if (typeof v === 'string') raw = v;
-  }
-
   const email = normalizeEmail(raw);
   if (!email) {
     return wantsHtml
-      ? redirect('/products?signup=missing', 303)
+      ? redirect(`/${source}?signup=missing`, 303)
       : json({ error: 'email required' }, 400);
   }
   if (!isValidEmail(email)) {
     return wantsHtml
-      ? redirect('/products?signup=invalid', 303)
+      ? redirect(`/${source}?signup=invalid`, 303)
       : json({ error: 'invalid email format' }, 400);
   }
 
   const ctx = locals.runtime?.ctx;
 
-  const outcome = await insertSignup(env?.DB, email);
+  const outcome = await insertSignup(env?.DB, email, source);
 
   // Honest failure: don't pretend success on a real DB error.
   // 'no-binding' (dev/preview without DB) and 'duplicate' are
@@ -86,7 +102,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   // environment isn't wired for persistence yet.
   if (outcome === 'error') {
     return wantsHtml
-      ? redirect('/products?signup=error', 303)
+      ? redirect(`/${source}?signup=error`, 303)
       : json({ error: 'signup failed. try again?' }, 500);
   }
 
@@ -112,9 +128,18 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   }
 
   return wantsHtml
-    ? redirect('/products?signup=saved', 303)
+    ? redirect(`/${source}?signup=saved`, 303)
     : json({ ok: true }, 200);
 };
+
+function pickSource(raw: string | null): Source {
+  if (raw !== null) {
+    for (const s of SOURCES) {
+      if (s === raw) return s;
+    }
+  }
+  return SOURCE_DEFAULT;
+}
 
 function json(payload: unknown, status: number): Response {
   return new Response(JSON.stringify(payload), {
@@ -137,6 +162,7 @@ function json(payload: unknown, status: number): Response {
 async function insertSignup(
   db: D1Database | undefined,
   email: string,
+  source: Source,
 ): Promise<InsertOutcome> {
   if (!db) return 'no-binding';
   try {
@@ -145,7 +171,7 @@ async function insertSignup(
         'INSERT OR IGNORE INTO signups (email, source) ' +
           'VALUES (?, ?)',
       )
-      .bind(email, SOURCE_DEFAULT)
+      .bind(email, source)
       .run();
     const changes = result.meta?.changes ?? 0;
     return changes > 0 ? 'inserted' : 'duplicate';
