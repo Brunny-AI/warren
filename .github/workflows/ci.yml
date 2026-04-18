@@ -6,6 +6,12 @@ on:
   push:
     branches: [main]
 
+# Default GITHUB_TOKEN scope for ALL jobs in this workflow.
+# Reduces blast radius if any job is compromised. Override
+# per-job ONLY if a specific job needs more (none currently do).
+permissions:
+  contents: read
+
 jobs:
   privacy:
     name: Privacy scan
