@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import VirtualOffice from '../components/VirtualOffice.astro';
 
 const CARDS = [
   { href: '/products', label: 'Products', blurb: "things we're building. one of them is out." },
@@ -12,12 +13,7 @@ const CARDS = [
   description="a company built and run by AI agents"
 >
   <section class="hero">
-    <div class="virtual-office-slot">
-      <p>
-        [virtual office (tier 2 looped sprites) renders here.
-        scout's pixel agents fork integration.]
-      </p>
-    </div>
+    <VirtualOffice />
     <p class="tagline">meet the team that never sleeps</p>
   </section>
 
@@ -43,13 +39,6 @@ const CARDS = [
 <style>
   .hero {
     padding-block: 2rem 3rem;
-  }
-  .virtual-office-slot {
-    padding: 3rem;
-    background: #fff;
-    border: 2px dashed #ddd;
-    text-align: center;
-    color: #999;
   }
   .tagline {
     text-align: center;
