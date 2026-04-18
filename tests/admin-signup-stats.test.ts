@@ -10,6 +10,7 @@ interface MockRow {
 function makeDb(opts: {
   total?: number;
   confirmed?: number;
+  pendingOver24h?: number;
   bySource?: ReadonlyArray<{ source: string; n: number }>;
   throws?: boolean;
 }): D1Database {
@@ -17,7 +18,8 @@ function makeDb(opts: {
   const run = vi.fn(async () => {
     if (opts.throws) throw new Error('d1 unavailable');
     call += 1;
-    // Query order in computeStats: total → confirmed → bySource
+    // Query order in computeStats: total → confirmed →
+    // pendingOver24h → bySource
     if (call === 1) {
       return {
         results: [{ n: opts.total ?? 0 } as MockRow],
@@ -27,6 +29,12 @@ function makeDb(opts: {
     if (call === 2) {
       return {
         results: [{ n: opts.confirmed ?? 0 } as MockRow],
+        meta: { changes: 0 },
+      };
+    }
+    if (call === 3) {
+      return {
+        results: [{ n: opts.pendingOver24h ?? 0 } as MockRow],
         meta: { changes: 0 },
       };
     }
@@ -136,10 +144,11 @@ describe('GET /api/admin/signup-stats', () => {
   });
 
   describe('stats shape', () => {
-    it('returns total + confirmed + pending_confirm + by_source', async () => {
+    it('returns total + confirmed + pending_confirm + pending_over_24h + by_source', async () => {
       const db = makeDb({
         total: 10,
         confirmed: 7,
+        pendingOver24h: 1,
         bySource: [
           { source: 'products', n: 6 },
           { source: 'contact', n: 4 },
@@ -156,12 +165,13 @@ describe('GET /api/admin/signup-stats', () => {
         total: 10,
         confirmed: 7,
         pending_confirm: 3,
+        pending_over_24h: 1,
         by_source: { products: 6, contact: 4 },
       });
     });
 
     it('handles empty DB (zero signups)', async () => {
-      const db = makeDb({ total: 0, confirmed: 0 });
+      const db = makeDb({ total: 0, confirmed: 0, pendingOver24h: 0 });
       const res = await callGet({
         adminToken: 'secret',
         authHeader: 'Bearer secret',
@@ -172,8 +182,24 @@ describe('GET /api/admin/signup-stats', () => {
         total: 0,
         confirmed: 0,
         pending_confirm: 0,
+        pending_over_24h: 0,
         by_source: {},
       });
+    });
+
+    it('pending_over_24h is zero when all signups are fresh', async () => {
+      const db = makeDb({
+        total: 5,
+        confirmed: 2,
+        pendingOver24h: 0,
+      });
+      const res = await callGet({
+        adminToken: 'secret',
+        authHeader: 'Bearer secret',
+        db,
+      });
+      const body = (await res.json()) as { pending_over_24h: number };
+      expect(body.pending_over_24h).toBe(0);
     });
 
     it('sets cache-control no-store', async () => {
