@@ -28,6 +28,13 @@ interface Env {
   RATE_LIMIT?: KVNamespace;
   RESEND_API_KEY?: string;
   RESEND_FROM_ADDRESS?: string;
+  /**
+   * Shared secret for /api/admin/* endpoints. When absent,
+   * admin endpoints return 503 (not provisioned) — NOT 401.
+   * Intentional: distinguish "no admin access configured"
+   * from "access denied with wrong token."
+   */
+  ADMIN_TOKEN?: string;
 }
 
 declare namespace App {
