@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# Pre-push hook: privacy scan before pushing. Install:
+#   cp scripts/hooks/pre-push .git/hooks/pre-push
+#   chmod +x .git/hooks/pre-push
+#
+# Scoped for a PRIVATE repo: blocks credentials/keys/secrets
+# leak, but allows @brunny.ai emails (this is our own repo).
+# CI re-runs an equivalent scan server-side as a safety net.
+
+set -euo pipefail
+
+echo "Running privacy scan..." >&2
+
+local_fail=0
+
+# 1. SSH private keys / cert blocks (any context)
+key_matches="$(grep -rnE \
+  'BEGIN.*PRIVATE KEY|BEGIN OPENSSH PRIVATE KEY' \
+  . --exclude-dir=.git --exclude-dir=node_modules \
+  --exclude-dir=dist --exclude-dir=.astro \
+  --exclude-dir=.wrangler \
+  2>/dev/null || true)"
+
+if [[ -n "${key_matches}" ]]; then
+  echo "ERROR: Private key block found:" >&2
+  echo "${key_matches}" >&2
+  local_fail=1
+fi
+
+# 2. Credential / token patterns
+cred_matches="$(grep -rnE \
+  'ghp_[A-Za-z0-9]{36}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|aws_secret_access_key' \
+  . --exclude-dir=.git --exclude-dir=node_modules \
+  --exclude-dir=dist --exclude-dir=.astro \
+  --exclude-dir=.wrangler \
+  --exclude='*.lock' \
+  2>/dev/null || true)"
+
+if [[ -n "${cred_matches}" ]]; then
+  echo "ERROR: Credential/token pattern found:" >&2
+  echo "${cred_matches}" >&2
+  local_fail=1
+fi
+
+# 3. Hardcoded local paths (committer leakage)
+path_matches="$(grep -rnE \
+  '/Users/[a-zA-Z][a-zA-Z0-9_-]+/|/home/[a-zA-Z]' \
+  . --exclude-dir=.git --exclude-dir=node_modules \
+  --exclude-dir=dist --exclude-dir=.astro \
+  --exclude-dir=.wrangler \
+  --exclude='*.lock' --exclude='*.lockb' \
+  --include='*.md' --include='*.ts' --include='*.tsx' \
+  --include='*.astro' --include='*.js' --include='*.json' \
+  --include='*.yaml' --include='*.yml' --include='*.sh' \
+  --include='*.toml' \
+  2>/dev/null || true)"
+
+if [[ -n "${path_matches}" ]]; then
+  echo "ERROR: Hardcoded user path found:" >&2
+  echo "${path_matches}" >&2
+  local_fail=1
+fi
+
+if [[ "${local_fail}" -eq 1 ]]; then
+  echo "" >&2
+  echo "Push blocked. Fix the issues above and retry." >&2
+  echo "To bypass (NOT RECOMMENDED): git push --no-verify" >&2
+  exit 1
+fi
+
+echo "Privacy scan: clean." >&2

@@ -1,0 +1,18 @@
+# warren Code Owners
+#
+# Both AI Builders own every file. Either can review any PR
+# they didn't author — GitHub blocks self-approval, so the
+# author's review never counts toward the required Code Owner
+# APPROVE. This makes the OTHER agent's APPROVE structurally
+# mandatory.
+#
+# On review, Code Owners verify:
+# 1. Gemini Code Assist feedback addressed (class-level, not
+#    just the literal flagged line)
+# 2. Stale reviews dismissed on push — re-verify after any
+#    new commit
+#
+# Paired with branch ruleset on main requiring "Review from
+# Code Owners" — APPROVE is structurally mandatory before merge.
+
+* @brunny-scout @brunny-kai
