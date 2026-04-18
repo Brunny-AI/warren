@@ -41,6 +41,21 @@ interface StatsResult {
    * ignore confirm emails).
    */
   readonly pending_over_24h: number;
+  /**
+   * Unix epoch seconds of the most recent signup
+   * (MAX(created_at)). Null if no signups exist yet.
+   * Paired with pending_over_24h: if last_signup_at is
+   * very fresh but pending_over_24h is climbing, the
+   * problem is delivery, not traffic.
+   */
+  readonly last_signup_at: number | null;
+  /**
+   * Unix epoch seconds of the most recent confirmation
+   * (MAX(confirmed_at)). Null if nothing's been confirmed
+   * yet. Gap between last_signup_at and last_confirmed_at
+   * approximates the confirm-click latency distribution.
+   */
+  readonly last_confirmed_at: number | null;
   readonly by_source: Readonly<Record<string, number>>;
 }
 
@@ -130,6 +145,19 @@ async function computeStats(
           '  AND created_at < unixepoch() - 86400',
       )
       .run();
+    // Timestamp pairs. MAX() returns NULL when the table is
+    // empty or the filtered subset is empty — we surface
+    // that null upward rather than coercing to 0 (which a
+    // consumer would misinterpret as 'happened at epoch').
+    const lastSignupRes = await db
+      .prepare('SELECT MAX(created_at) AS t FROM signups')
+      .run();
+    const lastConfirmedRes = await db
+      .prepare(
+        'SELECT MAX(confirmed_at) AS t FROM signups ' +
+          'WHERE confirmed_at IS NOT NULL',
+      )
+      .run();
     const bySourceRes = await db
       .prepare(
         'SELECT source, COUNT(*) AS n FROM signups ' +
@@ -140,6 +168,8 @@ async function computeStats(
     const total = firstN(totalRes);
     const confirmed = firstN(confirmedRes);
     const pendingOver24h = firstN(pendingOver24hRes);
+    const lastSignupAt = firstT(lastSignupRes);
+    const lastConfirmedAt = firstT(lastConfirmedRes);
     const bySource: Record<string, number> = {};
     const rows = ((bySourceRes as unknown) as {
       results?: { source?: string; n?: number }[];
@@ -155,11 +185,24 @@ async function computeStats(
       confirmed,
       pending_confirm: total - confirmed,
       pending_over_24h: pendingOver24h,
+      last_signup_at: lastSignupAt,
+      last_confirmed_at: lastConfirmedAt,
       by_source: bySource,
     };
   } catch {
     return null;
   }
+}
+
+/**
+ * Extract a nullable timestamp from a MAX() query result.
+ * Returns null if the table was empty (MAX returns NULL) —
+ * NOT 0, which a consumer would misread as epoch 1970.
+ */
+function firstT(result: unknown): number | null {
+  const r = result as { results?: { t?: number | null }[] };
+  const t = r.results?.[0]?.t;
+  return typeof t === 'number' ? t : null;
 }
 
 function firstN(result: unknown): number {

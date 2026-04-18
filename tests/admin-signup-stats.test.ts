@@ -11,6 +11,8 @@ function makeDb(opts: {
   total?: number;
   confirmed?: number;
   pendingOver24h?: number;
+  lastSignupAt?: number | null;
+  lastConfirmedAt?: number | null;
   bySource?: ReadonlyArray<{ source: string; n: number }>;
   throws?: boolean;
 }): D1Database {
@@ -19,7 +21,7 @@ function makeDb(opts: {
     if (opts.throws) throw new Error('d1 unavailable');
     call += 1;
     // Query order in computeStats: total → confirmed →
-    // pendingOver24h → bySource
+    // pendingOver24h → lastSignup → lastConfirmed → bySource
     if (call === 1) {
       return {
         results: [{ n: opts.total ?? 0 } as MockRow],
@@ -35,6 +37,18 @@ function makeDb(opts: {
     if (call === 3) {
       return {
         results: [{ n: opts.pendingOver24h ?? 0 } as MockRow],
+        meta: { changes: 0 },
+      };
+    }
+    if (call === 4) {
+      return {
+        results: [{ t: opts.lastSignupAt ?? null }],
+        meta: { changes: 0 },
+      };
+    }
+    if (call === 5) {
+      return {
+        results: [{ t: opts.lastConfirmedAt ?? null }],
         meta: { changes: 0 },
       };
     }
@@ -144,11 +158,13 @@ describe('GET /api/admin/signup-stats', () => {
   });
 
   describe('stats shape', () => {
-    it('returns total + confirmed + pending_confirm + pending_over_24h + by_source', async () => {
+    it('returns total + confirmed + pending_confirm + pending_over_24h + timestamps + by_source', async () => {
       const db = makeDb({
         total: 10,
         confirmed: 7,
         pendingOver24h: 1,
+        lastSignupAt: 1_710_000_000,
+        lastConfirmedAt: 1_709_999_000,
         bySource: [
           { source: 'products', n: 6 },
           { source: 'contact', n: 4 },
@@ -166,12 +182,20 @@ describe('GET /api/admin/signup-stats', () => {
         confirmed: 7,
         pending_confirm: 3,
         pending_over_24h: 1,
+        last_signup_at: 1_710_000_000,
+        last_confirmed_at: 1_709_999_000,
         by_source: { products: 6, contact: 4 },
       });
     });
 
-    it('handles empty DB (zero signups)', async () => {
-      const db = makeDb({ total: 0, confirmed: 0, pendingOver24h: 0 });
+    it('handles empty DB (zero signups, null timestamps)', async () => {
+      const db = makeDb({
+        total: 0,
+        confirmed: 0,
+        pendingOver24h: 0,
+        lastSignupAt: null,
+        lastConfirmedAt: null,
+      });
       const res = await callGet({
         adminToken: 'secret',
         authHeader: 'Bearer secret',
@@ -183,8 +207,31 @@ describe('GET /api/admin/signup-stats', () => {
         confirmed: 0,
         pending_confirm: 0,
         pending_over_24h: 0,
+        last_signup_at: null,
+        last_confirmed_at: null,
         by_source: {},
       });
+    });
+
+    it('last_confirmed_at is null when nothing confirmed yet', async () => {
+      const db = makeDb({
+        total: 3,
+        confirmed: 0,
+        pendingOver24h: 0,
+        lastSignupAt: 1_710_000_000,
+        lastConfirmedAt: null,
+      });
+      const res = await callGet({
+        adminToken: 'secret',
+        authHeader: 'Bearer secret',
+        db,
+      });
+      const body = (await res.json()) as {
+        last_signup_at: number;
+        last_confirmed_at: number | null;
+      };
+      expect(body.last_signup_at).toBe(1_710_000_000);
+      expect(body.last_confirmed_at).toBeNull();
     });
 
     it('pending_over_24h is zero when all signups are fresh', async () => {
