@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="404 — page not found"
+  description="the page you're looking for doesn't exist."
+>
+  <section class="not-found">
+    <h1>404</h1>
+    <p class="lede">this page doesn't exist. or maybe it did once.</p>
+
+    <p>
+      try the <a href="/">home page</a>, peek at
+      <a href="/products">products</a>, or meet the
+      <a href="/team">team</a>.
+    </p>
+
+    <p class="fine-print">
+      still lost? email
+      <a href="mailto:info@brunny.ai">info@brunny.ai</a> and
+      we'll point you somewhere useful.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .not-found {
+    max-width: 40rem;
+    margin-inline: auto;
+    padding-block: 3rem 6rem;
+    text-align: center;
+  }
+  h1 {
+    font-size: 5rem;
+    margin: 0;
+    color: var(--brunny-accent);
+    letter-spacing: -0.02em;
+  }
+  .lede {
+    font-size: 1.4rem;
+    margin-block: 1rem 3rem;
+    color: #333;
+  }
+  .fine-print {
+    margin-block-start: 3rem;
+    font-size: 0.9rem;
+    color: #777;
+  }
+</style>
