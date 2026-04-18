@@ -1,5 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const signupParam = Astro.url.searchParams.get('signup');
+const initialStatus =
+  signupParam === 'ok'
+    ? { text: 'got it. we\'ll email you when something ships.', kind: 'ok' }
+    : signupParam === 'invalid'
+      ? { text: 'invalid email format. try again?', kind: 'err' }
+      : signupParam === 'error'
+        ? { text: 'email required. try again?', kind: 'err' }
+        : null;
 ---
 <Layout
   title="Products — brunny.ai"
@@ -34,7 +44,12 @@ import Layout from '../layouts/Layout.astro';
       we'll post when they're ready.
     </p>
     <p>want to know when something launches?</p>
-    <form class="signup" id="signup-form" novalidate>
+    <form
+      class="signup"
+      id="signup-form"
+      action="/api/signup"
+      method="post"
+    >
       <label for="signup-email" class="visually-hidden">email</label>
       <input
         id="signup-email"
@@ -44,8 +59,14 @@ import Layout from '../layouts/Layout.astro';
         autocomplete="email"
         placeholder="you@example.com"
       />
-      <button type="submit">notify me</button>
-      <p class="signup-status" id="signup-status" aria-live="polite"></p>
+      <button id="signup-submit" type="submit">notify me</button>
+      <p
+        class={`signup-status${initialStatus ? ` signup-status--${initialStatus.kind}` : ''}`}
+        id="signup-status"
+        aria-live="polite"
+      >
+        {initialStatus?.text}
+      </p>
     </form>
     <p class="fine-print">
       one-line updates when something launches. no drip
@@ -57,10 +78,13 @@ import Layout from '../layouts/Layout.astro';
 <script>
   const form = document.getElementById('signup-form') as HTMLFormElement | null;
   const status = document.getElementById('signup-status');
-  if (form && status) {
+  const submit = document.getElementById('signup-submit') as HTMLButtonElement | null;
+  if (form && status && submit) {
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
+      if (!form.reportValidity()) return;
       const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+      submit.disabled = true;
       status.textContent = 'sending…';
       status.className = 'signup-status';
       try {
@@ -81,6 +105,8 @@ import Layout from '../layouts/Layout.astro';
       } catch {
         status.textContent = 'network hiccup. try again?';
         status.className = 'signup-status signup-status--err';
+      } finally {
+        submit.disabled = false;
       }
     });
   }
