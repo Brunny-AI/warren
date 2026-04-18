@@ -2,20 +2,38 @@
 /**
  * VirtualOffice — Astro wrapper that mounts the React island.
  *
- * Phase 1 (this PR): ships a placeholder div. PR #6 (ticket
- * WARREN-PIXEL-AGENTS-FORK) ports the rolandal/pixel-agents-
- * standalone renderer + 4 default-palette sprites and makes
- * this render a real Canvas 2D loop.
+ * Phase 1 (this PR): ships a placeholder div. The next PR
+ * ports the rolandal/pixel-agents-standalone renderer + 4
+ * default-palette sprites and makes this render a real
+ * Canvas 2D loop.
  *
  * Phase 4: swap the static loop for live data (output-clock
  * JSON via KV) with minimum-animation-floor guard.
+ *
+ * Variant prop: 'hero' (large centered, /home) or 'team'
+ * (smaller, integrated with profile cards, /team). Kai PM
+ * lock: same source, different container via prop.
+ *
+ * Accessibility: Canvas 2D is invisible to screen readers.
+ * aria-label on the wrapper describes the scene for
+ * non-visual consumers; role='img' tells ATs to treat the
+ * wrapper as a single visual unit, not a navigable container.
  *
  * See workspaces/scout/scratch/warren-pixel-agents-fork-plan.md
  * for the full integration plan.
  */
 import VirtualOfficeIsland from './VirtualOffice.tsx';
+
+interface Props {
+  readonly variant?: 'hero' | 'team';
+}
+const { variant = 'hero' } = Astro.props;
 ---
-<div class='virtual-office'>
+<div
+  class={`virtual-office virtual-office--${variant}`}
+  role='img'
+  aria-label='Virtual office: 4 AI agents at work'
+>
   <VirtualOfficeIsland client:only='react' />
   <noscript>
     <div class='virtual-office__noscript'>
@@ -33,6 +51,10 @@ import VirtualOfficeIsland from './VirtualOffice.tsx';
     min-block-size: 240px;
     padding: 2rem;
     text-align: center;
+  }
+  .virtual-office--team {
+    min-block-size: 180px;
+    padding: 1.25rem;
   }
   .virtual-office__noscript {
     color: #999;
