@@ -98,7 +98,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
 
   const ctx = locals.runtime?.ctx;
 
-  const outcome = await insertSignup(env?.DB, email, source);
+  const { outcome, token } = await insertSignup(env?.DB, email, source);
 
   // Honest failure: don't pretend success on a real DB error.
   // 'no-binding' (dev/preview without DB) and 'duplicate' are
@@ -116,15 +116,19 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   // Fire-and-forget confirmation email. Only send on first
   // insert — duplicates and no-binding skip the send. Failure
   // inside the send swallows; D1 is the source of truth.
+  const siteOrigin = new URL(request.url).origin;
   if (
     outcome === 'inserted' &&
+    token !== null &&
     env?.RESEND_API_KEY &&
     env?.RESEND_FROM_ADDRESS
   ) {
+    const confirmUrl = `${siteOrigin}/api/confirm?token=${token}`;
     const send = sendConfirmation(
       env.RESEND_API_KEY,
       env.RESEND_FROM_ADDRESS,
       email,
+      confirmUrl,
     );
     if (ctx && typeof ctx.waitUntil === 'function') {
       ctx.waitUntil(send);
@@ -170,20 +174,29 @@ async function insertSignup(
   db: D1Database | undefined,
   email: string,
   source: Source,
-): Promise<InsertOutcome> {
-  if (!db) return 'no-binding';
+): Promise<{ outcome: InsertOutcome; token: string | null }> {
+  if (!db) return { outcome: 'no-binding', token: null };
   try {
+    const token = crypto.randomUUID();
     const result = await db
       .prepare(
-        'INSERT OR IGNORE INTO signups (email, source) ' +
-          'VALUES (?, ?)',
+        'INSERT OR IGNORE INTO signups ' +
+          '(email, source, confirmation_token) ' +
+          'VALUES (?, ?, ?)',
       )
-      .bind(email, source)
+      .bind(email, source, token)
       .run();
     const changes = result.meta?.changes ?? 0;
-    return changes > 0 ? 'inserted' : 'duplicate';
+    // Token only meaningful when a NEW row was inserted. On
+    // duplicate we return null — the caller should NOT send a
+    // second confirmation email (original token is still
+    // valid in D1 from the first insert).
+    return {
+      outcome: changes > 0 ? 'inserted' : 'duplicate',
+      token: changes > 0 ? token : null,
+    };
   } catch {
-    return 'error';
+    return { outcome: 'error', token: null };
   }
 }
 
@@ -199,6 +212,7 @@ async function sendConfirmation(
   apiKey: string,
   fromAddress: string,
   to: string,
+  confirmUrl: string,
 ): Promise<void> {
   const controller = new AbortController();
   const timer = setTimeout(
@@ -215,9 +229,12 @@ async function sendConfirmation(
       body: JSON.stringify({
         from: fromAddress,
         to: [to],
-        subject: 'you\'re on the list',
+        subject: 'confirm your signup',
         text:
-          'thanks — we\'ll email you one line when something ' +
+          'one more step — click the link below to confirm ' +
+          'your email:\n\n' +
+          `${confirmUrl}\n\n` +
+          "we'll only email you one line when something " +
           'ships. no drip campaign, no newsletter spam.\n\n' +
           '— brunny',
       }),

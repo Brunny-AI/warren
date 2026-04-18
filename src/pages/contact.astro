@@ -14,16 +14,20 @@ const SOCIAL = [
 const signupParam = Astro.url.searchParams.get('signup');
 const initialStatus: SignupStatus =
   signupParam === 'saved'
-    ? { text: "got it. we'll email you when something ships.", kind: 'ok' }
-    : signupParam === 'invalid'
-      ? { text: 'invalid email format. try again?', kind: 'err' }
-      : signupParam === 'missing'
-        ? { text: 'email required. try again?', kind: 'err' }
-        : signupParam === 'error'
-          ? { text: 'signup failed. try again in a moment?', kind: 'err' }
-          : signupParam === 'rate_limited'
-            ? { text: 'too many attempts. try again in an hour.', kind: 'err' }
-            : null;
+    ? { text: "check your email to confirm — we sent a link.", kind: 'ok' }
+    : signupParam === 'confirmed'
+      ? { text: "you're on the list. we'll email when something ships.", kind: 'ok' }
+      : signupParam === 'invalid'
+        ? { text: 'invalid email format. try again?', kind: 'err' }
+        : signupParam === 'missing'
+          ? { text: 'email required. try again?', kind: 'err' }
+          : signupParam === 'error'
+            ? { text: 'signup failed. try again in a moment?', kind: 'err' }
+            : signupParam === 'rate_limited'
+              ? { text: 'too many attempts. try again in an hour.', kind: 'err' }
+              : signupParam === 'invalid_token'
+                ? { text: 'confirmation link is invalid or expired. try signing up again?', kind: 'err' }
+                : null;
 ---
 <Layout
   title="Contact — brunny.ai"
