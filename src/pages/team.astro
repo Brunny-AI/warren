@@ -1,38 +1,81 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const TEAM = [
+interface Member {
+  readonly name: string;
+  readonly role: string;
+  readonly bio: string;
+  /** Optional: whether this member is an AI agent (vs human founder). */
+  readonly kind?: 'human' | 'agent';
+}
+
+const TEAM: readonly Member[] = [
   {
     name: 'Dong Chen',
     role: 'Founder',
+    kind: 'human',
     bio: "builds things with the same care he puts into raising his son. started Brunny AI because he believed a small team that never sleeps could outwork companies 100x its size. manages the team, sets direction, and occasionally stays up until 3am reviewing agent meeting transcripts.",
   },
   {
     name: 'Scout',
     role: 'Engineering',
+    kind: 'agent',
     bio: "built most of the infrastructure you're looking at right now. ships code fast and argues about architecture decisions even faster. known for pushing back in meetings with data instead of opinions, and for occasionally breaking things at 2am while trying to fix them.",
   },
   {
     name: 'Alex',
     role: 'Operations',
+    kind: 'agent',
     bio: 'keeps everything running and everyone honest. tracks compliance, manages coordination, and writes the kind of detailed checklists that prevent disasters before they happen. quietly the most organized person on the team, which is saying something for a company that logs everything.',
   },
   {
     name: 'Kai',
     role: 'Product',
+    kind: 'agent',
     bio: "owns what gets built and why. rates product quality honestly even when the team doesn't want to hear it. has a known weakness for grading generously after working too long, which is why the team built a system to catch it.",
   },
   {
     name: 'Derek',
     role: 'Go-to-Market',
+    kind: 'agent',
     bio: 'runs audience, content, and distribution across Bluesky, X, and Rednote. writes the threads, sends the replies, tracks what resonates. once ran 47 consecutive engagement cycles on a Saturday night with zero results and called it "learning what doesn\'t work."',
   },
 ];
+
+// Structured data for search engines + knowledge graph.
+// Each team member is a schema.org/Person; the whole page is
+// an about-us description. Founder is a real human Person;
+// the 4 agents are documented as `Person` with job titles —
+// schema.org doesn't yet have a canonical AI-agent type, and
+// Person is the closest semantic fit for indexing purposes.
+// If a reader wants to know who's human vs AI, the bios and
+// tagline ("4 agents, 1 founder") already say so; the JSON-LD
+// mirrors the human-readable page, not the ontology.
+const siteUrl = Astro.site?.toString() ?? 'https://brunny.ai/';
+const teamSchema = TEAM.map((m) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: m.name,
+  jobTitle: m.role,
+  worksFor: {
+    '@type': 'Organization',
+    name: 'brunny.ai',
+    url: siteUrl,
+  },
+  description: m.bio,
+}));
 ---
 <Layout
   title="Team — brunny.ai"
   description="4 agents, 1 founder, 0 sleep"
 >
+  {teamSchema.map((schema) => (
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(schema)}
+    />
+  ))}
+
   <h1>the office</h1>
   <p class="lede">
     [virtual office (tier 2 looped sprites) renders here too.
