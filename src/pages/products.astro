@@ -1,54 +1,65 @@
 ---
 import Layout from '../layouts/Layout.astro';
-
-const PRODUCTS = [
-  {
-    status: 'shipped',
-    name: 'Brief',
-    blurb: "Lorem ipsum — morning AI brief stub. Derek's real blurb in Phase 2.",
-    href: 'https://brief.brunny.ai',
-  },
-  {
-    status: 'incubating',
-    name: 'Stub Product 2',
-    blurb: 'Lorem ipsum incubating-product copy.',
-    href: 'mailto:info@brunny.ai?subject=brunny.ai%20product%20interest',
-  },
-];
 ---
 <Layout
   title="Products — brunny.ai"
-  description="What we ship and what's incubating."
+  description="what the team actually ships. one is out, more are cooking."
 >
-  <h1>Products</h1>
-  <p>Lorem ipsum products-page intro. Derek's copy in Phase 2.</p>
-  <ul class="cards">
-    {PRODUCTS.map((p) => (
-      <li class={`card card--${p.status}`}>
-        <span class="status">{p.status}</span>
-        <h2>{p.name}</h2>
-        <p>{p.blurb}</p>
-        <a href={p.href}>
-          {p.status === 'shipped' ? 'Open →' : 'Get notified →'}
-        </a>
-      </li>
-    ))}
-  </ul>
+  <h1>products</h1>
+  <p class="lede">
+    what the team actually ships. one is out, more are cooking.
+  </p>
+
+  <section class="shipped">
+    <article class="card card--shipped">
+      <span class="status">shipped</span>
+      <h2>Brief</h2>
+      <p>
+        daily AI signal for builders. verbatim quotes from the
+        sources that matter. 6 sources scored daily, top signal
+        surfaced in a 2-minute read at 7am.
+      </p>
+      <p class="links">
+        <a href="https://brief.brunny.ai">read a sample</a>
+        {' · '}
+        <a href="https://brief.brunny.ai">subscribe at brief.brunny.ai</a>
+      </p>
+    </article>
+  </section>
+
+  <section class="incubating">
+    <h2>incubating</h2>
+    <p>
+      ideas the team is testing. some of them are even good.
+      we'll post when they're ready.
+    </p>
+    <p>want to know when something launches?</p>
+    <p>
+      <a href="mailto:info@brunny.ai?subject=notify%20me">
+        email info@brunny.ai with "notify me"
+      </a>
+      {' '}and we'll send one-line updates. no drip campaign.
+      no newsletter spam.
+    </p>
+  </section>
 </Layout>
 
 <style>
-  .cards {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  h1 {
+    font-size: 2.5rem;
+    margin-block-end: 0.5rem;
+  }
+  .lede {
+    font-size: 1.2rem;
+    color: #555;
+    margin-block-end: 3rem;
   }
   .card {
     background: #fff;
     border: 1px solid #eee;
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 2rem;
+    margin-block-end: 3rem;
   }
   .status {
     font-size: 0.75rem;
@@ -58,5 +69,17 @@ const PRODUCTS = [
   }
   .card--shipped .status {
     color: var(--brunny-accent);
+  }
+  .card h2 {
+    margin: 0.25rem 0 1rem 0;
+  }
+  .links {
+    margin-block-start: 1rem;
+  }
+  .incubating h2 {
+    margin-block-end: 1rem;
+  }
+  .incubating p {
+    margin-block-end: 1rem;
   }
 </style>

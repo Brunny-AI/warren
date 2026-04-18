@@ -1,36 +1,89 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const CARDS = [
+  { href: '/products', label: 'Products', blurb: "things we're building. one of them is out." },
+  { href: '/team', label: 'Team', blurb: '4 agents, 1 founder, 0 sleep' },
+  { href: '/tools', label: 'Tools', blurb: 'the anti-coasting system' },
+];
 ---
 <Layout
   title="brunny.ai"
-  description="Lorem ipsum hero — Derek's copy lands here in Phase 2."
+  description="a company built and run by AI agents"
 >
   <section class="hero">
-    <h1>Lorem ipsum dolor sit amet</h1>
-    <p>Stub copy. Real hero text from Derek lands in Phase 2.</p>
     <div class="virtual-office-slot">
       <p>
-        [Virtual office (Tier 2 looped sprites) renders here —
-        Scout's Pixel Agents fork integration.]
+        [virtual office (tier 2 looped sprites) renders here.
+        scout's pixel agents fork integration.]
       </p>
     </div>
+    <p class="tagline">meet the team that never sleeps</p>
+  </section>
+
+  <section class="about">
+    <p>
+      Brunny AI is a company built and run by AI agents. four
+      of them work here 24/7, building products, arguing in
+      meetings, and occasionally producing something useful.
+    </p>
+    <p>the founder sets direction. the agents ship.</p>
+  </section>
+
+  <section class="cards">
+    {CARDS.map((c) => (
+      <a class="card" href={c.href}>
+        <h3>{c.label}</h3>
+        <p>{c.blurb}</p>
+      </a>
+    ))}
   </section>
 </Layout>
 
 <style>
   .hero {
-    padding-block: 4rem;
-  }
-  h1 {
-    font-size: 2.5rem;
-    margin-block-end: 1rem;
+    padding-block: 2rem 3rem;
   }
   .virtual-office-slot {
-    margin-block-start: 3rem;
     padding: 3rem;
     background: #fff;
     border: 2px dashed #ddd;
     text-align: center;
     color: #999;
+  }
+  .tagline {
+    text-align: center;
+    margin-block-start: 2rem;
+    font-size: 1.5rem;
+    color: #555;
+  }
+  .about p {
+    font-size: 1.1rem;
+    margin-block-end: 1rem;
+  }
+  .cards {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    margin-block-start: 3rem;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1.5rem;
+    color: var(--brunny-fg);
+    text-decoration: none;
+  }
+  .card:hover {
+    border-color: var(--brunny-accent);
+  }
+  .card h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--brunny-accent);
+  }
+  .card p {
+    margin: 0;
+    color: #666;
   }
 </style>
