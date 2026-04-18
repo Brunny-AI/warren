@@ -45,4 +45,37 @@ describe('security headers middleware', () => {
     expect(res.status).toBe(418);
     expect(await res.text()).toBe('teapot');
   });
+
+  it('emits a Content-Security-Policy with required directives', async () => {
+    const res = await callMiddleware();
+    const csp = res.headers.get('Content-Security-Policy');
+    expect(csp).not.toBeNull();
+    // Each directive must be present with at least the
+    // expected primary source.
+    expect(csp).toMatch(/default-src[^;]+'self'/);
+    expect(csp).toMatch(/script-src[^;]+'self'[^;]+'unsafe-inline'/);
+    expect(csp).toMatch(/style-src[^;]+'self'[^;]+'unsafe-inline'/);
+    expect(csp).toMatch(/img-src[^;]+'self'[^;]+data:/);
+    expect(csp).toMatch(/connect-src[^;]+'self'/);
+    expect(csp).toMatch(/form-action[^;]+'self'/);
+    expect(csp).toMatch(/frame-ancestors[^;]+'none'/);
+    expect(csp).toMatch(/object-src[^;]+'none'/);
+    expect(csp).toMatch(/base-uri[^;]+'self'/);
+  });
+
+  it('CSP respects upstream override', async () => {
+    // A route that legitimately needs to relax CSP (e.g.
+    // documentation showing code samples from an external
+    // source) must be able to set its own.
+    const upstream = new Response('ok', {
+      headers: {
+        'Content-Security-Policy':
+          "default-src 'self' https://trusted.example",
+      },
+    });
+    const res = await callMiddleware(upstream);
+    expect(res.headers.get('Content-Security-Policy')).toBe(
+      "default-src 'self' https://trusted.example",
+    );
+  });
 });
