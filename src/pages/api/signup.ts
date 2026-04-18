@@ -7,6 +7,8 @@ const RESEND_URL = 'https://api.resend.com/emails';
 const RESEND_TIMEOUT_MS = 5_000;
 const SOURCE_DEFAULT = 'products-page';
 
+type InsertOutcome = 'inserted' | 'duplicate' | 'error' | 'no-binding';
+
 export const POST: APIRoute = async ({ request, redirect, locals }) => {
   const mediaType = (request.headers.get('content-type') ?? '')
     .split(';', 1)[0]
@@ -47,13 +49,23 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   const env = locals.runtime?.env;
   const ctx = locals.runtime?.ctx;
 
-  const isNewSignup = await insertSignup(env?.DB, email);
+  const outcome = await insertSignup(env?.DB, email);
 
-  // Fire-and-forget confirmation email. Failure here never
-  // fails the signup — D1 is the source of truth. Only send
-  // on first insert; duplicate submits don't re-confirm.
+  // Honest failure: don't pretend success on a real DB error.
+  // 'no-binding' (dev/preview without DB) and 'duplicate' are
+  // both treated as success — the user already exists or the
+  // environment isn't wired for persistence yet.
+  if (outcome === 'error') {
+    return wantsHtml
+      ? redirect('/products?signup=error', 303)
+      : json({ error: 'signup failed. try again?' }, 500);
+  }
+
+  // Fire-and-forget confirmation email. Only send on first
+  // insert — duplicates and no-binding skip the send. Failure
+  // inside the send swallows; D1 is the source of truth.
   if (
-    isNewSignup &&
+    outcome === 'inserted' &&
     env?.RESEND_API_KEY &&
     env?.RESEND_FROM_ADDRESS
   ) {
@@ -90,15 +102,21 @@ function json(payload: unknown, status: number): Response {
 }
 
 /**
- * Insert email into `signups` with idempotency. Returns true
- * if a new row was inserted, false if duplicate or if DB
- * binding is unavailable (dev/preview).
+ * Insert email into `signups` with idempotency. Returns a
+ * tagged outcome so the caller can distinguish:
+ *   - 'inserted'   — new row written; send confirmation
+ *   - 'duplicate'  — email already present; skip confirmation
+ *   - 'error'      — DB threw; caller should fail the request
+ *   - 'no-binding' — no DB bound (dev / preview); treat as soft-success
+ * Collapsing these into boolean hid the error case behind a
+ * "silent drop on unprovisioned deploy" footgun (per review
+ * on 2026-04-18).
  */
 async function insertSignup(
   db: D1Database | undefined,
   email: string,
-): Promise<boolean> {
-  if (!db) return false;
+): Promise<InsertOutcome> {
+  if (!db) return 'no-binding';
   try {
     const result = await db
       .prepare(
@@ -107,20 +125,20 @@ async function insertSignup(
       )
       .bind(email, SOURCE_DEFAULT)
       .run();
-    return (result.meta?.changes ?? 0) > 0;
+    const changes = result.meta?.changes ?? 0;
+    return changes > 0 ? 'inserted' : 'duplicate';
   } catch {
-    // Don't leak DB errors to the user. Signup persists only
-    // if DB insert succeeds; failure here degrades to a no-op
-    // which the caller can monitor via D1 row counts vs.
-    // submit counts. Follow-up PR adds structured metrics.
-    return false;
+    return 'error';
   }
 }
 
 /**
  * Send a Resend confirmation email. Returns silently on any
  * failure — caller treats as best-effort and relies on D1
- * for persistence.
+ * for persistence. A non-2xx response is an explicit failure;
+ * we raise it into the catch path so it's treated the same
+ * as a network/abort failure (vs. silently treating 4xx/5xx
+ * as success).
  */
 async function sendConfirmation(
   apiKey: string,
@@ -133,7 +151,7 @@ async function sendConfirmation(
     RESEND_TIMEOUT_MS,
   );
   try {
-    await fetch(RESEND_URL, {
+    const res = await fetch(RESEND_URL, {
       method: 'POST',
       headers: {
         authorization: `Bearer ${apiKey}`,
@@ -150,8 +168,12 @@ async function sendConfirmation(
       }),
       signal: controller.signal,
     });
+    if (!res.ok) {
+      throw new Error(`resend ${res.status}`);
+    }
   } catch {
-    // Swallow — best-effort send.
+    // Swallow — best-effort send. Failure path is identical
+    // whether caused by network, abort, or !res.ok.
   } finally {
     clearTimeout(timer);
   }

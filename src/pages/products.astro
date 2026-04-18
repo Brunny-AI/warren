@@ -12,7 +12,9 @@ const initialStatus: SignupStatus =
       ? { text: 'invalid email format. try again?', kind: 'err' }
       : signupParam === 'missing'
         ? { text: 'email required. try again?', kind: 'err' }
-        : null;
+        : signupParam === 'error'
+          ? { text: 'signup failed. try again in a moment?', kind: 'err' }
+          : null;
 ---
 <Layout
   title="Products — brunny.ai"
