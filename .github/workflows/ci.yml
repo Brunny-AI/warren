@@ -22,7 +22,7 @@ jobs:
             'BEGIN.*PRIVATE KEY|BEGIN OPENSSH PRIVATE KEY' \
             . --exclude-dir=.git --exclude-dir=node_modules \
             --exclude-dir=dist --exclude-dir=.astro \
-            --exclude-dir=.wrangler --exclude=pre-push \
+            --exclude-dir=.wrangler --exclude=pre-push --exclude=ci.yml \
             2>/dev/null || true)
           if [ -n "$matches" ]; then
             echo "ERROR: private key block found:" >&2
@@ -36,7 +36,7 @@ jobs:
             'ghp_[A-Za-z0-9]{36}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|aws_secret_access_key' \
             . --exclude-dir=.git --exclude-dir=node_modules \
             --exclude-dir=dist --exclude-dir=.astro \
-            --exclude-dir=.wrangler --exclude=pre-push \
+            --exclude-dir=.wrangler --exclude=pre-push --exclude=ci.yml \
             --exclude='*.lock' \
             2>/dev/null || true)
           if [ -n "$matches" ]; then
