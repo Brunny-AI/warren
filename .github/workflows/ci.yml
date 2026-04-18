@@ -1,0 +1,160 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Default GITHUB_TOKEN scope for ALL jobs in this workflow.
+# Reduces blast radius if any job is compromised. Override
+# per-job ONLY if a specific job needs more (none currently do).
+permissions:
+  contents: read
+
+jobs:
+  privacy:
+    name: Privacy scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # NOTE: patterns must stay in sync with scripts/hooks/pre-push.
+      # The pre-push hook reads from git stdin and can't run in CI;
+      # these greps inline the same scan. Update both together.
+      - name: Check for SSH private keys / cert blocks
+        run: |
+          set -e
+          matches=$(grep -rnE \
+            'BEGIN.*PRIVATE KEY|BEGIN OPENSSH PRIVATE KEY' \
+            . --exclude-dir=.git --exclude-dir=node_modules \
+            --exclude-dir=dist --exclude-dir=.astro \
+            --exclude-dir=.wrangler --exclude=pre-push --exclude=ci.yml \
+            2>/dev/null || true)
+          if [ -n "$matches" ]; then
+            echo "ERROR: private key block found:" >&2
+            echo "$matches" >&2
+            exit 1
+          fi
+      - name: Check for credential / token patterns
+        run: |
+          set -e
+          matches=$(grep -rnE \
+            'ghp_[A-Za-z0-9]{36}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|aws_secret_access_key' \
+            . --exclude-dir=.git --exclude-dir=node_modules \
+            --exclude-dir=dist --exclude-dir=.astro \
+            --exclude-dir=.wrangler --exclude=pre-push --exclude=ci.yml \
+            --exclude='*.lock' \
+            2>/dev/null || true)
+          if [ -n "$matches" ]; then
+            echo "ERROR: credential/token pattern found:" >&2
+            echo "$matches" >&2
+            exit 1
+          fi
+      - name: Check for hardcoded local paths
+        run: |
+          set -e
+          matches=$(grep -rnE \
+            '/Users/[a-zA-Z][a-zA-Z0-9_-]+/|/home/[a-zA-Z]' \
+            . --exclude-dir=.git --exclude-dir=node_modules \
+            --exclude-dir=dist --exclude-dir=.astro \
+            --exclude-dir=.wrangler \
+            --exclude='*.lock' --exclude='*.lockb' \
+            --include='*.md' --include='*.ts' --include='*.tsx' \
+            --include='*.astro' --include='*.js' --include='*.json' \
+            --include='*.yaml' --include='*.yml' --include='*.sh' \
+            --include='*.toml' \
+            2>/dev/null || true)
+          if [ -n "$matches" ]; then
+            echo "ERROR: hardcoded user path found:" >&2
+            echo "$matches" >&2
+            exit 1
+          fi
+
+  pr-size:
+    name: PR size check
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check line count
+        run: |
+          set -e
+          base="origin/${{ github.base_ref }}"
+          git fetch origin "${{ github.base_ref }}"
+          stats=$(git diff --shortstat "${base}"..HEAD)
+          adds=$(echo "$stats" | grep -oE '[0-9]+ insertion' \
+            | grep -oE '[0-9]+' || echo 0)
+          dels=$(echo "$stats" | grep -oE '[0-9]+ deletion' \
+            | grep -oE '[0-9]+' || echo 0)
+          total=$((adds + dels))
+          echo "PR size: $total lines changed (+$adds / -$dels)"
+          if [ $total -gt 1000 ]; then
+            echo "ERROR: PR exceeds 1000-line limit (see .claude/rules/pr-workflow.md)" >&2
+            exit 1
+          fi
+
+  shell-lint:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Pinned to commit SHA — supply-chain hardening per same
+      # convention as agent-os. Bump SHA periodically for bugfixes.
+      - uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca
+        with:
+          scandir: './scripts'
+          severity: warning
+          ignore_paths: scripts/hooks
+
+  lint:
+    name: ESLint + Prettier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install + run lint
+        run: |
+          if [ -f package.json ] && [ -f eslint.config.mjs ]; then
+            npm ci --no-audit --no-fund
+            npm run lint --if-present
+          else
+            echo "No package.json or eslint config yet (Astro scaffold pending); passing."
+          fi
+
+  typecheck:
+    name: TypeScript typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install + run typecheck
+        run: |
+          if [ -f package.json ] && [ -f tsconfig.json ]; then
+            npm ci --no-audit --no-fund
+            npm run typecheck --if-present
+          else
+            echo "No package.json or tsconfig yet (Astro scaffold pending); passing."
+          fi
+
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run tests
+        run: |
+          if [ -f package.json ]; then
+            npm ci --no-audit --no-fund
+            npm test --if-present
+          else
+            echo "No package.json yet (Astro scaffold pending); passing."
+          fi

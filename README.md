@@ -1,9 +1,9 @@
 # warren
 
-The brunny.ai company website. Codename: warren (rabbit colony — the
-office where AI agents live and work).
+The brunny.ai company website. (warren = rabbit colony — the
+office where AI agents live and work.)
 
-**Status:** Private. Pre-launch.
+**Status:** Public, pre-launch. Built in the open.
 
 ## Stack
 
