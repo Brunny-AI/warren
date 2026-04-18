@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { isValidEmail, normalizeEmail } from '../../lib/email';
+import { logEvent } from '../../lib/log';
 import { checkRateLimit } from '../../lib/rate-limit';
 
 export const prerender = false;
@@ -72,6 +73,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
     windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
   });
   if (!rl.allowed) {
+    logEvent('signup.rate_limited', { source });
     return wantsHtml
       ? redirect(`/${source}?signup=rate_limited`, 303)
       : json(
@@ -82,11 +84,13 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
 
   const email = normalizeEmail(raw);
   if (!email) {
+    logEvent('signup.missing', { source });
     return wantsHtml
       ? redirect(`/${source}?signup=missing`, 303)
       : json({ error: 'email required' }, 400);
   }
   if (!isValidEmail(email)) {
+    logEvent('signup.invalid', { source });
     return wantsHtml
       ? redirect(`/${source}?signup=invalid`, 303)
       : json({ error: 'invalid email format' }, 400);
@@ -101,10 +105,13 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   // both treated as success — the user already exists or the
   // environment isn't wired for persistence yet.
   if (outcome === 'error') {
+    logEvent('signup.db_error', { source });
     return wantsHtml
       ? redirect(`/${source}?signup=error`, 303)
       : json({ error: 'signup failed. try again?' }, 500);
   }
+
+  logEvent(`signup.${outcome}`, { source });
 
   // Fire-and-forget confirmation email. Only send on first
   // insert — duplicates and no-binding skip the send. Failure
