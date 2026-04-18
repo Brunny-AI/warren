@@ -1,9 +1,13 @@
 import type { APIRoute } from 'astro';
 
-// Server-rendered (not prerender: true) to sidestep a
-// Cloudflare-adapter ASSETS binding clash with the current
-// Pages-mode wrangler.toml. Small string-build per request
-// is cheap; Cache-Control hint below keeps edge caches warm.
+// Prerendered (static emit at build). The prior note on this
+// file said "server-rendered to sidestep the ASSETS binding
+// clash with Pages-mode wrangler.toml" — that clash was
+// removed by PR #23 (Pages → Workers + Static Assets
+// migration), so prerender is now viable. `lastmod` becomes
+// build-time instead of request-time; search crawlers get the
+// same ~daily precision either way.
+export const prerender = true;
 
 // Static set of indexable routes. Hand-maintained — the site
 // is five pages; adding `@astrojs/sitemap` for this scale is
