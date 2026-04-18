@@ -61,6 +61,17 @@ describe('security headers middleware', () => {
     expect(csp).toMatch(/frame-ancestors[^;]+'none'/);
     expect(csp).toMatch(/object-src[^;]+'none'/);
     expect(csp).toMatch(/base-uri[^;]+'self'/);
+    // Reporting: both legacy report-uri + modern report-to.
+    expect(csp).toMatch(/report-uri\s+\/api\/csp-report/);
+    expect(csp).toMatch(/report-to\s+csp-endpoint/);
+  });
+
+  it('emits Reporting-Endpoints header naming the csp group', async () => {
+    const res = await callMiddleware();
+    const endpoints = res.headers.get('Reporting-Endpoints');
+    expect(endpoints).toBe(
+      'csp-endpoint="/api/csp-report"',
+    );
   });
 
   it('CSP respects upstream override', async () => {

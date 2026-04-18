@@ -38,7 +38,8 @@ const CSP_DIRECTIVES: Readonly<Record<string, readonly string[]>> = {
 
   'font-src': ["'self'"],
 
-  // Fetch/XHR: just /api/signup today, which is same-origin.
+  // Fetch/XHR: /api/signup + /api/csp-report (browser-driven
+  // violation reports). Both same-origin.
   'connect-src': ["'self'"],
 
   // Form submits: SignupForm POSTs to same-origin /api/signup
@@ -58,6 +59,14 @@ const CSP_DIRECTIVES: Readonly<Record<string, readonly string[]>> = {
   // Base tag attack mitigation (prevents a compromised script
   // from rewriting relative URLs via <base>).
   'base-uri': ["'self'"],
+
+  // Violation reporting. `report-uri` is deprecated but still
+  // the only supported channel in Safari (as of 2025).
+  // `report-to` (via Reporting-Endpoints header below) is the
+  // modern standard — both are emitted for browser coverage.
+  // Endpoint implementation: src/pages/api/csp-report.ts.
+  'report-uri': ['/api/csp-report'],
+  'report-to': ['csp-endpoint'],
 };
 
 function _buildCsp(
@@ -96,6 +105,11 @@ const BASELINE_HEADERS: Readonly<Record<string, string>> = {
   // style-src is an acknowledged gap — nonce-based CSP
   // requires SSR plumbing per render, follow-up PR.
   'Content-Security-Policy': _buildCsp(CSP_DIRECTIVES),
+
+  // Reporting-Endpoints header names the group referenced by
+  // CSP's `report-to` directive. Modern browsers use this;
+  // older Safari falls back to `report-uri`.
+  'Reporting-Endpoints': 'csp-endpoint="/api/csp-report"',
 };
 
 export const onRequest: MiddlewareHandler = async (_context, next) => {
