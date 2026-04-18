@@ -14,7 +14,7 @@ work. Built on Astro + Cloudflare Workers.
 `.gemini/styleguide.md` is the source of truth for code style.
 Based on Google's TypeScript, HTML/CSS, and Shell guides. Gemini
 Code Assist enforces these on PR review; ESLint + Prettier
-enforce locally and in CI (`npm run lint`).
+enforce locally and in CI (once scaffolded, via `npm run lint`).
 
 ## Tech stack
 

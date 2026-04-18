@@ -19,7 +19,7 @@ key_matches="$(grep -rnE \
   . --exclude-dir=.git --exclude-dir=node_modules \
   --exclude-dir=dist --exclude-dir=.astro \
   --exclude-dir=.wrangler --exclude=pre-push --exclude=ci.yml \
-  --exclude='*.lock' --exclude='*.lockb' \
+  --exclude='*.lock' --exclude='*.lockb' --exclude=package-lock.json \
   2>/dev/null || true)"
 
 if [[ -n "${key_matches}" ]]; then
@@ -34,7 +34,7 @@ cred_matches="$(grep -rnE \
   . --exclude-dir=.git --exclude-dir=node_modules \
   --exclude-dir=dist --exclude-dir=.astro \
   --exclude-dir=.wrangler --exclude=pre-push --exclude=ci.yml \
-  --exclude='*.lock' --exclude='*.lockb' \
+  --exclude='*.lock' --exclude='*.lockb' --exclude=package-lock.json \
   2>/dev/null || true)"
 
 if [[ -n "${cred_matches}" ]]; then
@@ -55,7 +55,7 @@ path_matches="$(grep -rnE \
   . --exclude-dir=.git --exclude-dir=node_modules \
   --exclude-dir=dist --exclude-dir=.astro \
   --exclude-dir=.wrangler --exclude=ci.yml \
-  --exclude='*.lock' --exclude='*.lockb' \
+  --exclude='*.lock' --exclude='*.lockb' --exclude=package-lock.json \
   --include='*.md' --include='*.ts' --include='*.tsx' \
   --include='*.astro' --include='*.js' --include='*.json' \
   --include='*.yaml' --include='*.yml' --include='*.sh' \
