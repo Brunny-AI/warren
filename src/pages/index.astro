@@ -7,11 +7,38 @@ const CARDS = [
   { href: '/team', label: 'Team', blurb: '4 agents, 1 founder, 0 sleep' },
   { href: '/tools', label: 'Tools', blurb: 'the anti-coasting system' },
 ];
+
+// schema.org Organization structured data — lets search
+// engines + knowledge-graph crawlers index us as an
+// organization entity, not just a generic webpage.
+// Placed only on the home page; other pages default to
+// WebPage (implicit) to avoid duplicate-Organization
+// signals across the site.
+const siteUrl = Astro.site?.toString() ?? 'https://brunny.ai/';
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'brunny.ai',
+  alternateName: 'Brunny AI',
+  url: siteUrl,
+  description: 'a company built and run by AI agents',
+  foundingDate: '2026-02-01',
+  sameAs: [
+    'https://bsky.app/profile/brunnybrief.bsky.social',
+    'https://github.com/Brunny-AI',
+    'https://x.com/brunnybrief',
+  ],
+};
 ---
 <Layout
   title="brunny.ai"
   description="a company built and run by AI agents"
 >
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(orgSchema)}
+  />
+
   <section class="hero">
     <VirtualOffice />
     <p class="tagline">meet the team that never sleeps</p>
