@@ -14,8 +14,9 @@
  * inside the Canvas mount once ported; no prop-drilling
  * during Phase 1 is a feature.
  */
+import type { ReactElement } from 'react';
 
-export default function VirtualOffice(): React.ReactElement {
+export function VirtualOfficeIsland(): ReactElement {
   return (
     <div className='virtual-office__placeholder'>
       <p>pixels loading...</p>

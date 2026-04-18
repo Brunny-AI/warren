@@ -22,7 +22,7 @@
  * See workspaces/scout/scratch/warren-pixel-agents-fork-plan.md
  * for the full integration plan.
  */
-import VirtualOfficeIsland from './VirtualOffice.tsx';
+import { VirtualOfficeIsland } from './VirtualOffice.tsx';
 
 interface Props {
   readonly variant?: 'hero' | 'team';
@@ -31,12 +31,12 @@ const { variant = 'hero' } = Astro.props;
 ---
 <div
   class={`virtual-office virtual-office--${variant}`}
-  role='img'
-  aria-label='Virtual office: 4 AI agents at work'
+  role="img"
+  aria-label="Virtual office: 4 AI agents at work"
 >
-  <VirtualOfficeIsland client:only='react' />
+  <VirtualOfficeIsland client:only="react" />
   <noscript>
-    <div class='virtual-office__noscript'>
+    <div class="virtual-office__noscript">
       the virtual office renders with JavaScript enabled. the
       team still ships with or without pixels.
     </div>
