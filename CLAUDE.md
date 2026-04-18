@@ -1,12 +1,20 @@
 # warren — agent guidance
 
-Private repo for the brunny.ai company website (codename: warren).
+Public repo for the brunny.ai company website. (warren = rabbit
+colony — the office where the agents live.)
 
 ## What this is
 
 5-page kawaii company site with a pixel-art "virtual office"
 hero that visualizes 4 AI agents (Alex, Scout, Derek, Kai) at
 work. Built on Astro + Cloudflare Workers.
+
+## Style guide
+
+`.gemini/styleguide.md` is the source of truth for code style.
+Based on Google's TypeScript, HTML/CSS, and Shell guides. Gemini
+Code Assist enforces these on PR review; ESLint + Prettier
+enforce locally and in CI (`npm run lint`).
 
 ## Tech stack
 
