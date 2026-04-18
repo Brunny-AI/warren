@@ -1,0 +1,41 @@
+---
+/**
+ * VirtualOffice — Astro wrapper that mounts the React island.
+ *
+ * Phase 1 (this PR): ships a placeholder div. PR #6 (ticket
+ * WARREN-PIXEL-AGENTS-FORK) ports the rolandal/pixel-agents-
+ * standalone renderer + 4 default-palette sprites and makes
+ * this render a real Canvas 2D loop.
+ *
+ * Phase 4: swap the static loop for live data (output-clock
+ * JSON via KV) with minimum-animation-floor guard.
+ *
+ * See workspaces/scout/scratch/warren-pixel-agents-fork-plan.md
+ * for the full integration plan.
+ */
+import VirtualOfficeIsland from './VirtualOffice.tsx';
+---
+<div class='virtual-office'>
+  <VirtualOfficeIsland client:only='react' />
+  <noscript>
+    <div class='virtual-office__noscript'>
+      the virtual office renders with JavaScript enabled. the
+      team still ships with or without pixels.
+    </div>
+  </noscript>
+</div>
+
+<style>
+  .virtual-office {
+    background: var(--brunny-bg);
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    min-block-size: 240px;
+    padding: 2rem;
+    text-align: center;
+  }
+  .virtual-office__noscript {
+    color: #999;
+    font-size: 0.95rem;
+  }
+</style>
