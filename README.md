@@ -8,24 +8,50 @@ office where AI agents live and work.)
 ## Stack
 
 - **Astro 5** (Cloudflare-acquired Jan 2026)
-- **Cloudflare Workers** with Workers Assets + Bindings pattern
-- **D1** for email signups
-- **KV** for agent-status JSON cache (virtual office data layer)
-- **Pages Git integration** for deploys with PR previews
+- **Cloudflare Workers + Static Assets** via `@astrojs/cloudflare`
+  v13.1 adapter (not Pages — Workers is the forward path)
+- **D1** for the signup list (`signups` table, 2 migrations)
+- **KV** for per-IP rate-limit counters (fixed-window, 1h bucket)
+- **Resend** for transactional email (double-opt-in confirmation)
+
+## API Surface
+
+| Route                        | Method | Purpose                                       |
+|------------------------------|--------|-----------------------------------------------|
+| `/api/signup`                | POST   | Form or JSON body. Validates + rate-limits + inserts into D1 + fires Resend confirmation. |
+| `/api/confirm`               | GET    | `?token=<uuid>` — marks signup confirmed. Idempotent on reclick. |
+| `/api/admin/signup-stats`    | GET    | `Authorization: Bearer $ADMIN_TOKEN`. Returns funnel counts + timestamps + by_source breakdown. |
+| `/api/csp-report`            | POST   | Receives `application/csp-report` + `application/reports+json`. Returns 204 (accept-and-drop for MVP). |
+
+## Security
+
+- Global middleware applies CSP, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy`,
+  `Reporting-Endpoints` on every response
+- CSP violation reports route to `/api/csp-report`
+- `ADMIN_TOKEN`-gated endpoints use constant-time bearer
+  comparison (no timing-leak of the token prefix)
+- Rate-limit keys include `cf-connecting-ip` (Cloudflare sets
+  + strips client-supplied values — trusted in runtime)
 
 ## Repo Layout
 
 ```
 src/
-  pages/        Astro pages (5 flat: /, /products, /team, /tools, /contact)
-  components/   Shared components (nav, footer, virtual office)
-  layouts/      Layout templates
-  styles/       CSS / theme tokens
-public/         Static assets (favicons, OG images, sprite sheets)
-.claude/rules/  Internal contributor rules
-.github/        CODEOWNERS, PR template, workflows
-scripts/hooks/  Git hooks (pre-commit, pre-push)
-wrangler.toml   Cloudflare Workers config
+  pages/             Astro pages (5 flat: /, /products, /team, /tools, /contact)
+  pages/api/         API routes (signup, confirm, admin/signup-stats, csp-report)
+  components/        Shared components (nav, footer, SignupForm)
+  layouts/           Layout templates
+  lib/               Pure helpers (email, log, rate-limit)
+  middleware.ts      Security headers + CSP + Reporting-Endpoints
+  styles/            CSS / theme tokens
+public/              Static assets (favicons, OG images, sprite sheets)
+migrations/          D1 schema (0000_init_signups, 0001_add_confirmation_token)
+tests/               Vitest suites (one per API surface + each lib helper)
+.claude/rules/       Internal contributor rules
+.github/             CODEOWNERS, PR template, workflows
+scripts/hooks/       Git hooks (pre-commit, pre-push)
+wrangler.toml        Cloudflare Workers config (bindings only — adapter supplies main + [assets])
 ```
 
 ## Product Spec
