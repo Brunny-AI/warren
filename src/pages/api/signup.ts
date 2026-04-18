@@ -5,11 +5,15 @@ export const prerender = false;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const POST: APIRoute = async ({ request, redirect }) => {
-  const contentType = request.headers.get('content-type') ?? '';
-  const wantsHtml = !contentType.includes('application/json');
+  const mediaType = (request.headers.get('content-type') ?? '')
+    .split(';', 1)[0]
+    .trim()
+    .toLowerCase();
+  const isJson = mediaType === 'application/json';
+  const wantsHtml = !isJson;
 
   let raw: string | null = null;
-  if (contentType.includes('application/json')) {
+  if (isJson) {
     try {
       const body = await request.json();
       if (typeof body === 'object' && body !== null) {
@@ -28,7 +32,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const email = normalize(raw);
   if (!email) {
     return wantsHtml
-      ? redirect('/products?signup=error', 303)
+      ? redirect('/products?signup=missing', 303)
       : json({ error: 'email required' }, 400);
   }
   if (!EMAIL_RE.test(email)) {
@@ -42,7 +46,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   // bindings are wired. Intentionally NOT logging the email —
   // Workers provider logs would become a raw-PII sink.
   return wantsHtml
-    ? redirect('/products?signup=ok', 303)
+    ? redirect('/products?signup=saved', 303)
     : json({ ok: true }, 200);
 };
 

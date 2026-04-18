@@ -3,11 +3,11 @@ import Layout from '../layouts/Layout.astro';
 
 const signupParam = Astro.url.searchParams.get('signup');
 const initialStatus =
-  signupParam === 'ok'
+  signupParam === 'saved'
     ? { text: 'got it. we\'ll email you when something ships.', kind: 'ok' }
     : signupParam === 'invalid'
       ? { text: 'invalid email format. try again?', kind: 'err' }
-      : signupParam === 'error'
+      : signupParam === 'missing'
         ? { text: 'email required. try again?', kind: 'err' }
         : null;
 ---
