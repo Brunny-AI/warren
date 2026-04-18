@@ -1,10 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SignupForm from '../components/SignupForm.astro';
+
+type SignupStatus = { text: string; kind: 'ok' | 'err' } | null;
 
 const signupParam = Astro.url.searchParams.get('signup');
-const initialStatus =
+const initialStatus: SignupStatus =
   signupParam === 'saved'
-    ? { text: 'got it. we\'ll email you when something ships.', kind: 'ok' }
+    ? { text: "got it. we'll email you when something ships.", kind: 'ok' }
     : signupParam === 'invalid'
       ? { text: 'invalid email format. try again?', kind: 'err' }
       : signupParam === 'missing'
@@ -44,73 +47,13 @@ const initialStatus =
       we'll post when they're ready.
     </p>
     <p>want to know when something launches?</p>
-    <form
-      class="signup"
-      id="signup-form"
-      action="/api/signup"
-      method="post"
-    >
-      <label for="signup-email" class="visually-hidden">email</label>
-      <input
-        id="signup-email"
-        name="email"
-        type="email"
-        required
-        autocomplete="email"
-        placeholder="you@example.com"
-      />
-      <button id="signup-submit" type="submit">notify me</button>
-      <p
-        class={`signup-status${initialStatus ? ` signup-status--${initialStatus.kind}` : ''}`}
-        id="signup-status"
-        aria-live="polite"
-      >
-        {initialStatus?.text}
-      </p>
-    </form>
+    <SignupForm id="products-signup" initialStatus={initialStatus} />
     <p class="fine-print">
       one-line updates when something launches. no drip
       campaign. no newsletter spam.
     </p>
   </section>
 </Layout>
-
-<script>
-  const form = document.getElementById('signup-form') as HTMLFormElement | null;
-  const status = document.getElementById('signup-status');
-  const submit = document.getElementById('signup-submit') as HTMLButtonElement | null;
-  if (form && status && submit) {
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      if (!form.reportValidity()) return;
-      const email = (form.elements.namedItem('email') as HTMLInputElement).value;
-      submit.disabled = true;
-      status.textContent = 'sending…';
-      status.className = 'signup-status';
-      try {
-        const res = await fetch('/api/signup', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-        const data = (await res.json()) as { ok?: boolean; error?: string };
-        if (res.ok && data.ok) {
-          form.reset();
-          status.textContent = 'got it. we\'ll email you when something ships.';
-          status.className = 'signup-status signup-status--ok';
-        } else {
-          status.textContent = data.error ?? 'something went wrong. try again?';
-          status.className = 'signup-status signup-status--err';
-        }
-      } catch {
-        status.textContent = 'network hiccup. try again?';
-        status.className = 'signup-status signup-status--err';
-      } finally {
-        submit.disabled = false;
-      }
-    });
-  }
-</script>
 
 <style>
   h1 {
@@ -150,62 +93,8 @@ const initialStatus =
   .incubating p {
     margin-block-end: 1rem;
   }
-  .signup {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-block: 1rem 0.5rem;
-  }
-  .signup input {
-    flex: 1 1 16rem;
-    min-inline-size: 12rem;
-    padding: 0.6rem 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font: inherit;
-  }
-  .signup input:focus-visible {
-    outline: 2px solid var(--brunny-accent);
-    outline-offset: 2px;
-  }
-  .signup button {
-    padding: 0.6rem 1.2rem;
-    border: 1px solid var(--brunny-accent);
-    border-radius: 6px;
-    background: var(--brunny-accent);
-    color: #fff;
-    font: inherit;
-    cursor: pointer;
-  }
-  .signup button:hover {
-    filter: brightness(0.95);
-  }
-  .signup-status {
-    flex-basis: 100%;
-    margin: 0;
-    min-block-size: 1.25rem;
-    font-size: 0.95rem;
-    color: #555;
-  }
-  .signup-status--ok {
-    color: var(--brunny-accent);
-  }
-  .signup-status--err {
-    color: #b3261e;
-  }
   .fine-print {
     font-size: 0.9rem;
     color: #777;
-  }
-  .visually-hidden {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    margin: -1px;
-    padding: 0;
-    border: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
   }
 </style>
