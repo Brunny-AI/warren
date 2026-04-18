@@ -1,0 +1,45 @@
+---
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/products", label: "Products" },
+  { href: "/team", label: "Team" },
+  { href: "/tools", label: "Tools" },
+  { href: "/contact", label: "Contact" },
+];
+---
+<header>
+  <nav>
+    <a href="/" class="brand">brunny.ai</a>
+    <ul>
+      {links.map((l) => (
+        <li><a href={l.href}>{l.label}</a></li>
+      ))}
+    </ul>
+  </nav>
+</header>
+
+<style>
+  header {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+  }
+  nav {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+  }
+</style>

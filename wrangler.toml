@@ -1,0 +1,6 @@
+name = "warren"
+compatibility_date = "2026-04-18"
+pages_build_output_dir = "./dist"
+
+# Bindings populated post-deploy by Scout's Cloudflare deploy work.
+# KV (agent-status) and Resend secret added in Phase 1.5+.
