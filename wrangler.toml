@@ -2,5 +2,23 @@ name = "warren"
 compatibility_date = "2024-09-23"
 pages_build_output_dir = "./dist"
 
-# Bindings populated post-deploy by Scout's Cloudflare deploy work.
-# KV (agent-status) and Resend secret added in Phase 1.5+.
+# ---------------------------------------------------------------
+# D1 — signups list (email + timestamp)
+# Provision once: `wrangler d1 create warren`
+# Paste the returned database_id below, then apply the schema:
+#   wrangler d1 execute warren --remote --file=./migrations/0000_init_signups.sql
+# ---------------------------------------------------------------
+[[d1_databases]]
+binding = "DB"
+database_name = "warren"
+database_id = "PLACEHOLDER_UNTIL_PROVISIONED"
+migrations_dir = "migrations"
+
+# ---------------------------------------------------------------
+# Secrets (provisioned via `wrangler secret put NAME`)
+#   RESEND_API_KEY       — signup confirmation sender (re_...)
+#   RESEND_FROM_ADDRESS  — e.g. "brunny <hi@brunny.ai>"
+# Sender domain must be verified in Resend dashboard.
+# ---------------------------------------------------------------
+
+# KV (agent-status) and any other bindings added as needed.
