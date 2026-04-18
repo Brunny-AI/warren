@@ -1,13 +1,13 @@
 ---
-import Nav from "../components/Nav.astro";
-import Footer from "../components/Footer.astro";
+import Footer from '../components/Footer.astro';
+import Nav from '../components/Nav.astro';
 
 interface Props {
-  title: string;
-  description?: string;
+  readonly title: string;
+  readonly description?: string;
 }
 
-const { title, description = "brunny.ai" } = Astro.props;
+const { title, description = 'brunny.ai' } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -29,24 +29,31 @@ const { title, description = "brunny.ai" } = Astro.props;
 
 <style is:global>
   :root {
-    --bg: #fafafa;
-    --fg: #111;
-    --accent: #ff6b9d;
-    --max-width: 960px;
+    --brunny-bg: #fafafa;
+    --brunny-fg: #111;
+    --brunny-accent: #ff6b9d;
+    --brunny-max-width: 960px;
   }
-  html, body {
+  html,
+  body {
     margin: 0;
     padding: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--brunny-bg);
+    color: var(--brunny-fg);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     line-height: 1.6;
   }
   main {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 2rem 1rem;
+    max-width: var(--brunny-max-width);
+    margin-inline: auto;
+    padding-block: 2rem;
+    padding-inline: 1rem;
   }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
+  a {
+    color: var(--brunny-accent);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
 </style>

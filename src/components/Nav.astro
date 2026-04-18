@@ -1,17 +1,17 @@
 ---
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/products", label: "Products" },
-  { href: "/team", label: "Team" },
-  { href: "/tools", label: "Tools" },
-  { href: "/contact", label: "Contact" },
+const LINKS = [
+  { href: '/', label: 'Home' },
+  { href: '/products', label: 'Products' },
+  { href: '/team', label: 'Team' },
+  { href: '/tools', label: 'Tools' },
+  { href: '/contact', label: 'Contact' },
 ];
 ---
 <header>
   <nav>
     <a href="/" class="brand">brunny.ai</a>
     <ul>
-      {links.map((l) => (
+      {LINKS.map((l) => (
         <li><a href={l.href}>{l.label}</a></li>
       ))}
     </ul>
@@ -21,12 +21,12 @@ const links = [
 <style>
   header {
     border-bottom: 1px solid #eee;
-    padding: 1rem 0;
+    padding-block: 1rem;
   }
   nav {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 0 1rem;
+    max-width: var(--brunny-max-width);
+    margin-inline: auto;
+    padding-inline: 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;

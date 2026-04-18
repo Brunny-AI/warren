@@ -1,5 +1,5 @@
 name = "warren"
-compatibility_date = "2026-04-18"
+compatibility_date = "2024-09-23"
 pages_build_output_dir = "./dist"
 
 # Bindings populated post-deploy by Scout's Cloudflare deploy work.

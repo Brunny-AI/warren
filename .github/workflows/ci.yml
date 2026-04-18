@@ -83,13 +83,20 @@ jobs:
           set -e
           base="origin/${{ github.base_ref }}"
           git fetch origin "${{ github.base_ref }}"
-          stats=$(git diff --shortstat "${base}"..HEAD)
+          # Exclude generated/lockfile churn from the human-edited
+          # PR-size budget. Lockfiles, build snapshots, and image
+          # blobs are mechanical updates, not reviewable code.
+          stats=$(git diff --shortstat "${base}"..HEAD -- \
+            ':(exclude)package-lock.json' \
+            ':(exclude)yarn.lock' \
+            ':(exclude)pnpm-lock.yaml' \
+            ':(exclude)bun.lockb')
           adds=$(echo "$stats" | grep -oE '[0-9]+ insertion' \
             | grep -oE '[0-9]+' || echo 0)
           dels=$(echo "$stats" | grep -oE '[0-9]+ deletion' \
             | grep -oE '[0-9]+' || echo 0)
           total=$((adds + dels))
-          echo "PR size: $total lines changed (+$adds / -$dels)"
+          echo "PR size (excl. lockfiles): $total lines (+$adds / -$dels)"
           if [ $total -gt 1000 ]; then
             echo "ERROR: PR exceeds 1000-line limit (see .claude/rules/pr-workflow.md)" >&2
             exit 1
@@ -115,7 +122,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install + run lint
         run: |
           if [ -f package.json ] && [ -f eslint.config.mjs ]; then
@@ -132,7 +139,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install + run typecheck
         run: |
           if [ -f package.json ] && [ -f tsconfig.json ]; then
@@ -149,7 +156,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Run tests
         run: |
           if [ -f package.json ]; then
