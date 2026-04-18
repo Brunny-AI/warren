@@ -1,11 +1,19 @@
 import type { APIRoute } from 'astro';
 import { isValidEmail, normalizeEmail } from '../../lib/email';
+import { checkRateLimit } from '../../lib/rate-limit';
 
 export const prerender = false;
 
 const RESEND_URL = 'https://api.resend.com/emails';
 const RESEND_TIMEOUT_MS = 5_000;
 const SOURCE_DEFAULT = 'products-page';
+
+// Per-IP cap on signup attempts. Picked generous enough that a
+// real human bouncing between /products and /contact forms plus
+// occasional retries won't trip; tight enough that a scripted
+// abuser gets stopped before filling the D1 table with garbage.
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_SECONDS = 3600; // 1 hour
 
 type InsertOutcome = 'inserted' | 'duplicate' | 'error' | 'no-binding';
 
@@ -16,6 +24,28 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
     .toLowerCase();
   const isJson = mediaType === 'application/json';
   const wantsHtml = !isJson;
+
+  // Rate-limit per client IP before doing any parse/validate
+  // work. Cloudflare sets cf-connecting-ip itself and strips
+  // any client-supplied value, so it's trusted in this runtime.
+  // Local dev / tests without the header key under 'unknown'
+  // (still gives a bounded bucket).
+  const env = locals.runtime?.env;
+  const clientIp =
+    request.headers.get('cf-connecting-ip') ?? 'unknown';
+  const rl = await checkRateLimit(env?.RATE_LIMIT, {
+    key: `signup:${clientIp}`,
+    limit: RATE_LIMIT_MAX,
+    windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
+  });
+  if (!rl.allowed) {
+    return wantsHtml
+      ? redirect('/products?signup=rate_limited', 303)
+      : json(
+          { error: 'too many signup attempts. try again in an hour.' },
+          429,
+        );
+  }
 
   let raw: string | null = null;
   if (isJson) {
@@ -46,7 +76,6 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
       : json({ error: 'invalid email format' }, 400);
   }
 
-  const env = locals.runtime?.env;
   const ctx = locals.runtime?.ctx;
 
   const outcome = await insertSignup(env?.DB, email);

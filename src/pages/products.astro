@@ -14,7 +14,9 @@ const initialStatus: SignupStatus =
         ? { text: 'email required. try again?', kind: 'err' }
         : signupParam === 'error'
           ? { text: 'signup failed. try again in a moment?', kind: 'err' }
-          : null;
+          : signupParam === 'rate_limited'
+            ? { text: 'too many attempts. try again in an hour.', kind: 'err' }
+            : null;
 ---
 <Layout
   title="Products — brunny.ai"

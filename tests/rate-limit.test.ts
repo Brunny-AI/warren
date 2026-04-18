@@ -145,4 +145,46 @@ describe('checkRateLimit', () => {
     // floor(1234 / 300) * 300 = 1200, resetAt = 1500
     expect(result.resetAt).toBe(1500);
   });
+
+  it('fails open when KV.get rejects', async () => {
+    const failingKV: KVStore = {
+      get: async () => {
+        throw new Error('kv unavailable');
+      },
+      put: async () => {},
+    };
+    const result = await checkRateLimit(failingKV, {
+      key: 'ip:1.2.3.4',
+      limit: 1,
+      windowSeconds: WINDOW,
+      now: () => 1000,
+    });
+    expect(result).toEqual({
+      allowed: true,
+      count: 0,
+      limit: 1,
+      resetAt: 1020,
+    });
+  });
+
+  it('fails open when KV.put rejects', async () => {
+    const failingKV: KVStore = {
+      get: async () => null,
+      put: async () => {
+        throw new Error('kv write failed');
+      },
+    };
+    const result = await checkRateLimit(failingKV, {
+      key: 'ip:1.2.3.4',
+      limit: 1,
+      windowSeconds: WINDOW,
+      now: () => 1000,
+    });
+    expect(result).toEqual({
+      allowed: true,
+      count: 0,
+      limit: 1,
+      resetAt: 1020,
+    });
+  });
 });

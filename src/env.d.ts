@@ -12,8 +12,20 @@ interface D1Database {
   prepare(query: string): D1PreparedStatement;
 }
 
+// Minimal KV surface used by the rate-limit module.
+// Structurally compatible with Cloudflare's KVNamespace.
+interface KVNamespace {
+  get(key: string): Promise<string | null>;
+  put(
+    key: string,
+    value: string,
+    options?: { expirationTtl?: number },
+  ): Promise<void>;
+}
+
 interface Env {
   DB: D1Database;
+  RATE_LIMIT?: KVNamespace;
   RESEND_API_KEY?: string;
   RESEND_FROM_ADDRESS?: string;
 }
