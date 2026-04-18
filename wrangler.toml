@@ -1,6 +1,21 @@
 name = "warren"
 compatibility_date = "2024-09-23"
-pages_build_output_dir = "./dist"
+
+# Workers + Static Assets deployment (NOT legacy Pages).
+# Per @astrojs/cloudflare v13.1 docs, the adapter supplies
+# the runtime entry and static-assets binding itself — the
+# user-owned wrangler.toml at repo root only declares the
+# project name, compat date, and custom bindings (D1, KV,
+# secrets). No `main`, no `[assets]`, no `pages_build_output_dir`.
+#
+# The previous `pages_build_output_dir = "./dist"` line put
+# this in Pages mode, where the reserved `ASSETS` binding
+# clashed with the adapter's generated assets config. PR #17
+# surfaced that via `prerender: true` failing build at exit 1.
+#
+# Cloudflare is converging Pages → Workers for new projects
+# (research-sprint 2026-04-18); starting in Workers mode
+# avoids a forced migration in ~6mo.
 
 # ---------------------------------------------------------------
 # D1 — signups list (email + timestamp)
