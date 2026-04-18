@@ -81,24 +81,37 @@ export async function checkRateLimit(
     };
   }
 
-  const raw = await kv.get(windowKey);
-  const prior = parseCount(raw);
-  const next = prior + 1;
+  // Fail-open on KV errors. Rate limiting is a defense-in-depth
+  // layer; an outage of the counter store should not take down
+  // the protected route. The caller can layer stricter policy
+  // on top if a zero-trust stance is required.
+  try {
+    const raw = await kv.get(windowKey);
+    const prior = parseCount(raw);
+    const next = prior + 1;
 
-  // Write before the return so the next caller sees the bump.
-  // Note: KV.put is eventually consistent — bursts across
-  // POPs can overshoot by a constant factor before the write
-  // propagates. For abuse prevention this is fine.
-  await kv.put(windowKey, String(next), {
-    expirationTtl: Math.max(options.windowSeconds, 60),
-  });
+    // Write before the return so the next caller sees the bump.
+    // Note: KV.put is eventually consistent — bursts across
+    // POPs can overshoot by a constant factor before the write
+    // propagates. For abuse prevention this is fine.
+    await kv.put(windowKey, String(next), {
+      expirationTtl: Math.max(options.windowSeconds, 60),
+    });
 
-  return {
-    allowed: next <= options.limit,
-    count: next,
-    limit: options.limit,
-    resetAt,
-  };
+    return {
+      allowed: next <= options.limit,
+      count: next,
+      limit: options.limit,
+      resetAt,
+    };
+  } catch {
+    return {
+      allowed: true,
+      count: 0,
+      limit: options.limit,
+      resetAt,
+    };
+  }
 }
 
 function parseCount(raw: string | null): number {

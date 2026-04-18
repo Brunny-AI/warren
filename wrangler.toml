@@ -15,10 +15,17 @@ database_id = "PLACEHOLDER_UNTIL_PROVISIONED"
 migrations_dir = "migrations"
 
 # ---------------------------------------------------------------
+# KV — rate limiter for /api/* routes (fixed-window counters)
+# Provision once: `wrangler kv namespace create RATE_LIMIT`
+# Paste the returned id below.
+# ---------------------------------------------------------------
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "PLACEHOLDER_UNTIL_PROVISIONED"
+
+# ---------------------------------------------------------------
 # Secrets (provisioned via `wrangler secret put NAME`)
 #   RESEND_API_KEY       — signup confirmation sender (re_...)
 #   RESEND_FROM_ADDRESS  — e.g. "brunny <hi@brunny.ai>"
 # Sender domain must be verified in Resend dashboard.
 # ---------------------------------------------------------------
-
-# KV (agent-status) and any other bindings added as needed.
