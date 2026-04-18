@@ -1,8 +1,8 @@
 import type { APIRoute } from 'astro';
+import { isValidEmail, normalizeEmail } from '../../lib/email';
 
 export const prerender = false;
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESEND_URL = 'https://api.resend.com/emails';
 const RESEND_TIMEOUT_MS = 5_000;
 const SOURCE_DEFAULT = 'products-page';
@@ -34,13 +34,13 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
     if (typeof v === 'string') raw = v;
   }
 
-  const email = normalize(raw);
+  const email = normalizeEmail(raw);
   if (!email) {
     return wantsHtml
       ? redirect('/products?signup=missing', 303)
       : json({ error: 'email required' }, 400);
   }
-  if (!EMAIL_RE.test(email)) {
+  if (!isValidEmail(email)) {
     return wantsHtml
       ? redirect('/products?signup=invalid', 303)
       : json({ error: 'invalid email format' }, 400);
@@ -86,13 +86,6 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
     ? redirect('/products?signup=saved', 303)
     : json({ ok: true }, 200);
 };
-
-function normalize(raw: string | null): string | null {
-  if (raw === null) return null;
-  const trimmed = raw.trim().toLowerCase();
-  if (trimmed.length === 0 || trimmed.length > 254) return null;
-  return trimmed;
-}
 
 function json(payload: unknown, status: number): Response {
   return new Response(JSON.stringify(payload), {
