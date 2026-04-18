@@ -43,11 +43,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        # warren is Astro + TypeScript on Cloudflare Workers (interpreted, not compiled).
-        # 'javascript-typescript' covers our .ts/.tsx/.astro/.js source.
         # 'actions' scans the workflow YAML itself for known-bad patterns.
-        - language: 'javascript-typescript'
-          build-mode: 'none'
+        # 'javascript-typescript' is intentionally OMITTED until the Astro
+        # scaffold PR lands real .ts/.tsx/.astro source. CodeQL fails on
+        # an empty repo with no JS/TS code to analyze. Add back via the
+        # scaffold PR alongside src/pages/index.astro etc.
         - language: 'actions'
           build-mode: 'none'
         # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
