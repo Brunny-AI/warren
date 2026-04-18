@@ -10,7 +10,8 @@
     "astro": "astro",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,astro,md,json,yml,yaml}\"",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "test": "vitest run"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.1.0",
@@ -29,6 +30,7 @@
     "eslint-plugin-astro": "^1.0.0",
     "prettier": "^3.0.0",
     "prettier-plugin-astro": "^0.14.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "vitest": "^3.0.0"
   }
 }
