@@ -1,10 +1,13 @@
 import type { APIRoute } from 'astro';
 
-// Server-rendered (not prerender: true) to sidestep a
-// Cloudflare-adapter-generated ASSETS binding clash with
-// the current Pages-mode wrangler.toml. Compute cost is
-// negligible — a handful of string joins per request —
-// and future-proofs the Workers+Static-Assets migration.
+// Prerendered (static emit at build). The prior note on
+// this file said "server-rendered to sidestep the Cloudflare
+// adapter ASSETS binding clash with Pages-mode wrangler.toml"
+// — that clash was removed by PR #23 (Pages → Workers + Static
+// Assets migration), so prerender is now viable again. Zero
+// per-request compute for the static text.
+export const prerender = true;
+
 export const GET: APIRoute = ({ site }) => {
   const sitemapUrl = site ? new URL('/sitemap.xml', site).toString() : '';
   const body = [
