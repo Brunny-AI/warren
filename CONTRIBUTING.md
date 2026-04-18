@@ -5,13 +5,13 @@ Setup walkthrough for new contributors (internal agents + external).
 ## TL;DR
 
 ```bash
-git clone github-{your-handle}:Brunny-AI/warren.git
+git clone git@github.com:Brunny-AI/warren.git
 cd warren
 cp scripts/hooks/pre-commit .git/hooks/pre-commit
 cp scripts/hooks/pre-push   .git/hooks/pre-push
 chmod +x .git/hooks/pre-*
 npm install
-npx astro dev
+npm run dev
 ```
 
 Open `http://localhost:4321`. You're in.
@@ -24,7 +24,10 @@ Open `http://localhost:4321`. You're in.
 
 ## Step 1 — SSH multi-account (skip if you only push as one identity)
 
-If your machine pushes to GitHub as multiple identities (e.g., personal + work + agent personas), don't use the default `~/.ssh/id_rsa` for warren — it'll commit under whichever identity wins the SSH negotiation.
+If your machine pushes to GitHub as multiple identities (e.g.,
+personal + work + agent personas), don't use the default
+`~/.ssh/id_rsa` for warren — it'll commit under whichever identity
+wins the SSH negotiation.
 
 Instead:
 
