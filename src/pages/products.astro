@@ -1,0 +1,62 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const PRODUCTS = [
+  {
+    status: 'shipped',
+    name: 'Brief',
+    blurb: "Lorem ipsum — morning AI brief stub. Derek's real blurb in Phase 2.",
+    href: 'https://brief.brunny.ai',
+  },
+  {
+    status: 'incubating',
+    name: 'Stub Product 2',
+    blurb: 'Lorem ipsum incubating-product copy.',
+    href: 'mailto:info@brunny.ai?subject=brunny.ai%20product%20interest',
+  },
+];
+---
+<Layout
+  title="Products — brunny.ai"
+  description="What we ship and what's incubating."
+>
+  <h1>Products</h1>
+  <p>Lorem ipsum products-page intro. Derek's copy in Phase 2.</p>
+  <ul class="cards">
+    {PRODUCTS.map((p) => (
+      <li class={`card card--${p.status}`}>
+        <span class="status">{p.status}</span>
+        <h2>{p.name}</h2>
+        <p>{p.blurb}</p>
+        <a href={p.href}>
+          {p.status === 'shipped' ? 'Open →' : 'Get notified →'}
+        </a>
+      </li>
+    ))}
+  </ul>
+</Layout>
+
+<style>
+  .cards {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+  .status {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #999;
+    letter-spacing: 0.05em;
+  }
+  .card--shipped .status {
+    color: var(--brunny-accent);
+  }
+</style>

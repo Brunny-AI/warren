@@ -1,0 +1,59 @@
+---
+import Footer from '../components/Footer.astro';
+import Nav from '../components/Nav.astro';
+
+interface Props {
+  readonly title: string;
+  readonly description?: string;
+}
+
+const { title, description = 'brunny.ai' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <Nav />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --brunny-bg: #fafafa;
+    --brunny-fg: #111;
+    --brunny-accent: #ff6b9d;
+    --brunny-max-width: 960px;
+  }
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--brunny-bg);
+    color: var(--brunny-fg);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+  }
+  main {
+    max-width: var(--brunny-max-width);
+    margin-inline: auto;
+    padding-block: 2rem;
+    padding-inline: 1rem;
+  }
+  a {
+    color: var(--brunny-accent);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
