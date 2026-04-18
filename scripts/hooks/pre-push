@@ -18,7 +18,7 @@ key_matches="$(grep -rnE \
   'BEGIN.*PRIVATE KEY|BEGIN OPENSSH PRIVATE KEY' \
   . --exclude-dir=.git --exclude-dir=node_modules \
   --exclude-dir=dist --exclude-dir=.astro \
-  --exclude-dir=.wrangler --exclude-dir=hooks \
+  --exclude-dir=.wrangler --exclude=pre-push \
   2>/dev/null || true)"
 
 if [[ -n "${key_matches}" ]]; then
@@ -32,7 +32,7 @@ cred_matches="$(grep -rnE \
   'ghp_[A-Za-z0-9]{36}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|aws_secret_access_key' \
   . --exclude-dir=.git --exclude-dir=node_modules \
   --exclude-dir=dist --exclude-dir=.astro \
-  --exclude-dir=.wrangler --exclude-dir=hooks \
+  --exclude-dir=.wrangler --exclude=pre-push \
   --exclude='*.lock' \
   2>/dev/null || true)"
 
@@ -42,12 +42,14 @@ if [[ -n "${cred_matches}" ]]; then
   local_fail=1
 fi
 
-# 3. Hardcoded local paths (committer leakage)
+# 3. Hardcoded local paths (committer leakage).
+# No --exclude=pre-push needed: --include filters below are
+# extension-based and pre-push has no extension.
 path_matches="$(grep -rnE \
   '/Users/[a-zA-Z][a-zA-Z0-9_-]+/|/home/[a-zA-Z]' \
   . --exclude-dir=.git --exclude-dir=node_modules \
   --exclude-dir=dist --exclude-dir=.astro \
-  --exclude-dir=.wrangler --exclude-dir=hooks \
+  --exclude-dir=.wrangler \
   --exclude='*.lock' --exclude='*.lockb' \
   --include='*.md' --include='*.ts' --include='*.tsx' \
   --include='*.astro' --include='*.js' --include='*.json' \
