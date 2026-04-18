@@ -31,6 +31,16 @@ interface StatsResult {
   readonly total: number;
   readonly confirmed: number;
   readonly pending_confirm: number;
+  /**
+   * Rows with a confirmation_token set + confirmed_at NULL +
+   * created_at older than 24h. Signals a stuck-in-funnel
+   * segment: either a bad email delivery, a user who clicked
+   * 'submit' but never got / never saw the Resend link, or
+   * an abandoned signup. Count spiking is a monitor signal
+   * worth an alert; steady small number is normal (humans
+   * ignore confirm emails).
+   */
+  readonly pending_over_24h: number;
   readonly by_source: Readonly<Record<string, number>>;
 }
 
@@ -108,6 +118,18 @@ async function computeStats(
           'WHERE confirmed_at IS NOT NULL',
       )
       .run();
+    // Pending-over-24h: rows that have a token + no confirm
+    // + are older than a day. Filters out fresh signups in
+    // the normal 0-24h confirm window. confirmation_token
+    // filter excludes pre-#29 grandfathered rows.
+    const pendingOver24hRes = await db
+      .prepare(
+        'SELECT COUNT(*) AS n FROM signups ' +
+          'WHERE confirmed_at IS NULL ' +
+          '  AND confirmation_token IS NOT NULL ' +
+          '  AND created_at < unixepoch() - 86400',
+      )
+      .run();
     const bySourceRes = await db
       .prepare(
         'SELECT source, COUNT(*) AS n FROM signups ' +
@@ -117,6 +139,7 @@ async function computeStats(
 
     const total = firstN(totalRes);
     const confirmed = firstN(confirmedRes);
+    const pendingOver24h = firstN(pendingOver24hRes);
     const bySource: Record<string, number> = {};
     const rows = ((bySourceRes as unknown) as {
       results?: { source?: string; n?: number }[];
@@ -131,6 +154,7 @@ async function computeStats(
       total,
       confirmed,
       pending_confirm: total - confirmed,
+      pending_over_24h: pendingOver24h,
       by_source: bySource,
     };
   } catch {
