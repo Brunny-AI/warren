@@ -74,7 +74,7 @@ const emailId = `${id}-email`;
   </p>
 </form>
 
-<script define:vars={{ formId, statusId, submitId, source }}>
+<script is:inline define:vars={{ formId, statusId, submitId, source }}>
   const form = document.getElementById(formId);
   const status = document.getElementById(statusId);
   const submit = document.getElementById(submitId);
