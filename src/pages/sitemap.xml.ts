@@ -20,6 +20,7 @@ const ROUTES: readonly { path: string; priority: string }[] = [
   { path: '/', priority: '1.0' },
   { path: '/products', priority: '0.9' },
   { path: '/team', priority: '0.7' },
+  { path: '/log', priority: '0.7' },
   { path: '/contact', priority: '0.6' },
 ];
 
