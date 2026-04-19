@@ -280,4 +280,40 @@ describe('POST /api/signup — Resend', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
   });
+
+  it('logs confirmation_skipped_no_resend_config when key absent on insert', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(
+      () => undefined,
+    );
+    logSpy.mockClear();
+    const db = makeDb({ changes: 1 });
+    await callPost({ body: { email: 'a@b.co' }, db });
+    const emitted = logSpy.mock.calls
+      .map((c) => c[0] as string)
+      .filter(
+        (s) =>
+          typeof s === 'string' &&
+          s.includes('signup.confirmation_skipped_no_resend_config'),
+      );
+    expect(emitted.length).toBe(1);
+    logSpy.mockRestore();
+  });
+
+  it('does NOT log confirmation_skipped on duplicate (only inserts)', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(
+      () => undefined,
+    );
+    logSpy.mockClear();
+    const db = makeDb({ changes: 0 }); // duplicate, not insert
+    await callPost({ body: { email: 'a@b.co' }, db });
+    const emitted = logSpy.mock.calls
+      .map((c) => c[0] as string)
+      .filter(
+        (s) =>
+          typeof s === 'string' &&
+          s.includes('signup.confirmation_skipped_no_resend_config'),
+      );
+    expect(emitted.length).toBe(0);
+    logSpy.mockRestore();
+  });
 });

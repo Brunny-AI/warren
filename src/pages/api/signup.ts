@@ -136,6 +136,16 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
       // Local dev fallback: fire-and-forget without waitUntil
       void send.catch(() => {});
     }
+  } else if (outcome === 'inserted' && token !== null) {
+    // Signup persisted but confirmation skipped — surface the
+    // config gap so admin-stats pending_confirm climbing without
+    // delivery can be distinguished from user-didn't-click-yet.
+    // Quieter than a 500 (signup itself worked) but louder than
+    // silence (previously returned 'inserted' with no trace of
+    // the skipped send).
+    logEvent('signup.confirmation_skipped_no_resend_config', {
+      source,
+    });
   }
 
   return wantsHtml
