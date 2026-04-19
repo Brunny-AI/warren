@@ -28,11 +28,19 @@ test.describe('Chrome', () => {
       ['/contact', /contact/i],
     ];
     await page.goto('/');
+    // Scope to the Main navigation landmark. Home-page body also
+    // contains card anchors whose labels overlap nav link names
+    // (e.g. pill text or card headings), and antd Menu's <li>
+    // wrapping leaves the <a> with a smaller clickable geometry
+    // than the list item — unscoped `.first()` picks up the wrong
+    // element and scroll-into-view lands the click under the
+    // header's block bounds. R2 dogfood surfaced this, 2026-04-19.
+    const nav = page.getByRole('navigation', { name: 'Main navigation' });
     for (const [path, label] of routes) {
-      await page.getByRole('link', { name: label }).first().click();
+      await nav.getByRole('link', { name: label }).first().click();
       await expect(page).toHaveURL(new RegExp(path + '/?$'));
       await expect(
-        page.getByRole('link', { name: label, current: 'page' }).first(),
+        nav.getByRole('link', { name: label, current: 'page' }).first(),
       ).toBeVisible();
     }
   });
