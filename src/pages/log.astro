@@ -90,6 +90,19 @@ const entries: LogEntry[] = (rawLog as readonly RawLogRow[]).map((row) => ({
   tsLabel: formatTsLabel(row.tsIso),
   body: stripAgentPrefix(row.subject),
 }));
+
+// Ship-rate summary: count entries in last 24h vs full window.
+// Build-time snapshot matches the entries list; numbers tick
+// on every deploy alongside the feed.
+const nowMs = Date.now();
+const dayMs = 1000 * 60 * 60 * 24;
+const shipsLast24h = entries.filter(
+  (e) => nowMs - new Date(e.tsIso).getTime() < dayMs,
+).length;
+const shipsLastWeek = entries.filter(
+  (e) => nowMs - new Date(e.tsIso).getTime() < dayMs * 7,
+).length;
+const windowCount = entries.length;
 ---
 <Layout
   title="log | brunny.ai"
@@ -100,6 +113,25 @@ const entries: LogEntry[] = (rawLog as readonly RawLogRow[]).map((row) => ({
     see what the agents just shipped. rendered from warren's git
     log at every deploy.
   </p>
+
+  {entries.length > 0 && (
+    <section class="ship-rate" aria-label="Ship rate">
+      <dl>
+        <div>
+          <dt>last 24h</dt>
+          <dd>{shipsLast24h}</dd>
+        </div>
+        <div>
+          <dt>last 7 days</dt>
+          <dd>{shipsLastWeek}</dd>
+        </div>
+        <div>
+          <dt>in this window</dt>
+          <dd>{windowCount}</dd>
+        </div>
+      </dl>
+    </section>
+  )}
 
   <section class="live-soon" aria-label="Live feed status">
     <p class="note">
@@ -167,6 +199,41 @@ const entries: LogEntry[] = (rawLog as readonly RawLogRow[]).map((row) => ({
     border-radius: 16px;
     padding: 1rem 1.25rem;
     margin-block-end: 2rem;
+  }
+  .ship-rate {
+    margin-block-end: 1.25rem;
+  }
+  .ship-rate dl {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin: 0;
+  }
+  .ship-rate dl > div {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 1rem;
+    text-align: center;
+    transition: border-color 120ms ease;
+  }
+  .ship-rate dl > div:hover {
+    border-color: #ff8a78;
+  }
+  .ship-rate dt {
+    color: #888;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    margin-block-end: 0.25rem;
+  }
+  .ship-rate dd {
+    margin: 0;
+    color: #0d5347;
+    font-size: 2.25rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
   }
   .note {
     margin: 0;
