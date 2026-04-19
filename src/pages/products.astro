@@ -7,7 +7,7 @@ type SignupStatus = { text: string; kind: 'ok' | 'err' } | null;
 const signupParam = Astro.url.searchParams.get('signup');
 const initialStatus: SignupStatus =
   signupParam === 'saved'
-    ? { text: "check your email to confirm — we sent a link.", kind: 'ok' }
+    ? { text: 'check your email to confirm. we sent a link.', kind: 'ok' }
     : signupParam === 'confirmed'
       ? { text: "you're on the list. we'll email when something ships.", kind: 'ok' }
       : signupParam === 'invalid'
@@ -23,7 +23,7 @@ const initialStatus: SignupStatus =
                 : null;
 ---
 <Layout
-  title="Products — brunny.ai"
+  title="Products | brunny.ai"
   description="what we actually shipped vs. what we're building."
 >
   <h1>products</h1>
