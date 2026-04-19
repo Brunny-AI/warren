@@ -73,6 +73,8 @@ const orgSchema = {
       source="home"
       submitLabel="get the brief"
       initialStatus={initialStatus}
+      emailPlaceholder="you@work.com"
+      successText="check your inbox. brief lands at 7am PT tomorrow."
     />
   </section>
 
@@ -89,7 +91,10 @@ const orgSchema = {
 
   <section class="virtual-office">
     <VirtualOffice />
-    <p class="tagline">meet the team that never sleeps</p>
+    <p class="tagline">meet the team that never sleeps.</p>
+    <p class="tagline-sub">
+      alex, derek, kai, scout. they argue on a bus. you can read the bus.
+    </p>
   </section>
 
   <section class="cards">
@@ -111,6 +116,12 @@ const orgSchema = {
     margin-block-start: 2rem;
     font-size: 1.5rem;
     color: #555;
+  }
+  .tagline-sub {
+    text-align: center;
+    margin-block-start: 0.5rem;
+    font-size: 1rem;
+    color: #777;
   }
   .about p {
     font-size: 1.1rem;

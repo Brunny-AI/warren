@@ -25,6 +25,8 @@ export interface SignupFormProps {
   readonly source?: string;
   readonly submitLabel?: string;
   readonly initialStatus?: { text: string; kind: 'ok' | 'err' } | null;
+  readonly emailPlaceholder?: string;
+  readonly successText?: string;
 }
 
 interface SignupValues {
@@ -36,6 +38,8 @@ export default function SignupFormReact({
   source = 'products',
   submitLabel = 'notify me',
   initialStatus = null,
+  emailPlaceholder = 'you@example.com',
+  successText = "check your email to confirm — we sent a link.",
 }: SignupFormProps) {
   const [status, setStatus] = useState(initialStatus);
   const [submitting, setSubmitting] = useState(false);
@@ -62,8 +66,7 @@ export default function SignupFormReact({
       };
       if (res.ok) {
         setStatus({
-          text:
-            data.message ?? "check your email to confirm — we sent a link.",
+          text: data.message ?? successText,
           kind: 'ok',
         });
       } else {
@@ -132,7 +135,7 @@ export default function SignupFormReact({
             id={`${id}-email`}
             type="email"
             name="email"
-            placeholder="you@example.com"
+            placeholder={emailPlaceholder}
             autoComplete="email"
             aria-label="email"
           />
