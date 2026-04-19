@@ -1,12 +1,56 @@
 ---
-import NavReact from './NavReact';
+// Plain SSR nav — replaces the antd Menu + NavReact island.
+// Closes R2 P0-1 (3rd root cause): antd horizontal Menu collapsed
+// to an ellipsis dropdown at 1280x720 even though 4 items easily
+// fit, hiding nav links from keyboard + screen-reader users and
+// breaking the visitor exploration path (Derek: GTM-P1).
+//
+// Tradeoffs we're accepting:
+//  - no dropdown overflow behavior (4 items fit at any realistic
+//    viewport; if we add a 5th link later, that's the trigger to
+//    reintroduce an overflow strategy — NOT antd Menu)
+//  - aria-current resolved server-side from Astro.url.pathname,
+//    which matches the pre-#42 vanilla nav behavior and is
+//    announced correctly by screen readers
+//  - visual fidelity: teal active state + salmon hover border,
+//    per Derek R3 (#42) — matches brand R3 (salmon = status /
+//    hover / error only, teal = primary).
+
+interface NavLink {
+  readonly href: string;
+  readonly label: string;
+}
+
+const LINKS: readonly NavLink[] = [
+  { href: '/', label: 'Home' },
+  { href: '/products', label: 'Products' },
+  { href: '/team', label: 'Team' },
+  { href: '/contact', label: 'Contact' },
+];
 
 const currentPath = Astro.url.pathname;
+// Trailing-slash-normalize so /team/ and /team both match.
+const normalized = currentPath === '/' ? '/' : currentPath.replace(/\/$/, '');
 ---
 <header>
   <a href="/" class="brand">brunny.ai</a>
   <nav aria-label="Main navigation">
-    <NavReact currentPath={currentPath} client:only="react" />
+    <ul>
+      {LINKS.map((link) => {
+        const isCurrent = normalized === link.href;
+        return (
+          <li>
+            <a
+              href={link.href}
+              class={isCurrent ? 'nav-link nav-link--current' : 'nav-link'}
+              aria-current={isCurrent ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
   </nav>
 </header>
 
@@ -23,7 +67,31 @@ const currentPath = Astro.url.pathname;
   .brand {
     font-weight: 700;
     font-size: 1.2rem;
-    color: #1f3a36; /* theme colorTextBase */
+    color: #1f3a36; /* cartoonTheme colorTextBase */
     text-decoration: none;
+  }
+  nav ul {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-link {
+    color: #1f3a36;
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    border-bottom: 2px solid transparent;
+    transition: color 120ms ease, border-color 120ms ease;
+  }
+  .nav-link:hover {
+    /* R3 salmon: hover underline accent only. */
+    border-bottom-color: #ff8a78;
+  }
+  .nav-link--current {
+    color: #0d5347; /* cartoonTheme colorPrimary — active page */
+    border-bottom-color: #0d5347;
+    font-weight: 600;
   }
 </style>
