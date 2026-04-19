@@ -25,11 +25,13 @@ const CSP_DIRECTIVES: Readonly<Record<string, readonly string[]>> = {
   // inline submit handler and Astro's client-directive
   // bootstrap. Nonce-based CSP is the right long-term answer
   // but needs SSR nonce plumbing per render — a separate PR.
+  // TODO(post-launch-csp-nonces)
   'script-src': ["'self'", "'unsafe-inline'"],
 
   // Styles: Astro's scoped `<style>` blocks compile to inline
   // <style> tags. 'unsafe-inline' unavoidable until Astro
   // supports nonce-based style injection.
+  // TODO(post-launch-csp-nonces)
   'style-src': ["'self'", "'unsafe-inline'"],
 
   // Images: self + inline base64 (favicon uses data: URI in

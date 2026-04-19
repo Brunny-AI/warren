@@ -33,6 +33,14 @@ npx wrangler dev --port 8788
 
 **Use `wrangler dev`, not `npm run dev`.** Wrangler runs the production-mode SSR via miniflare with the same Workers runtime that ships to prod. `npm run dev` (astro dev / Vite SSR) has a known optimization race with React + antd that errors on first signup-page render — fine for component iteration, broken for end-to-end testing.
 
+**Pull and restart after each merge.** Wrangler dev does NOT hot-reload server-bundle changes pulled in from `git pull`. After any merge to main, kill the running `wrangler dev` process and restart it, otherwise teammates will see stale code while the working tree is current. Per Alex's R1 round-trip finding (2026-04-19): `wrangler dev` started pre-fix kept serving the broken handler even after `git pull` brought the fix to disk.
+
+```bash
+# After git pull origin main, in the wrangler dev terminal:
+# Ctrl+C to kill, then:
+npx wrangler dev --port 8788
+```
+
 In another terminal, run the harness:
 
 ```bash
