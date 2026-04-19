@@ -1,4 +1,7 @@
 import type { APIRoute } from 'astro';
+// Astro v6 + @astrojs/cloudflare 13: bindings via cloudflare:workers.
+// See src/pages/api/signup.ts for context on the migration.
+import { env } from 'cloudflare:workers';
 
 export const prerender = false;
 
@@ -59,8 +62,7 @@ interface StatsResult {
   readonly by_source: Readonly<Record<string, number>>;
 }
 
-export const GET: APIRoute = async ({ request, locals }) => {
-  const env = locals.runtime?.env;
+export const GET: APIRoute = async ({ request }) => {
 
   // Service not provisioned — 503 is the honest answer.
   // Returning 200-with-zeros would let a caller think the

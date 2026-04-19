@@ -39,11 +39,22 @@ interface Env {
 
 declare namespace App {
   interface Locals {
-    runtime: {
-      env: Env;
-      ctx: {
-        waitUntil(promise: Promise<unknown>): void;
-      };
+    /**
+     * Cloudflare ExecutionContext for waitUntil. Replaces the
+     * removed `runtime.ctx` path in Astro v6 + @astrojs/cloudflare 13.
+     * Optional because some test contexts (vitest miniflare unit
+     * tests) do not provide it.
+     */
+    cfContext?: {
+      waitUntil(promise: Promise<unknown>): void;
     };
   }
+}
+
+// Astro v6: bindings imported from cloudflare:workers replace
+// the removed `Astro.locals.runtime.env`. Type the module so
+// `import { env } from 'cloudflare:workers'` resolves to our
+// `Env` shape across the API routes.
+declare module 'cloudflare:workers' {
+  export const env: Env;
 }
