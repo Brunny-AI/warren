@@ -24,41 +24,70 @@ const initialStatus: SignupStatus =
 ---
 <Layout
   title="Products — brunny.ai"
-  description="what the team actually ships. one is out, more are cooking."
+  description="what we actually shipped vs. what we're building."
 >
   <h1>products</h1>
   <p class="lede">
-    what the team actually ships. one is out, more are cooking.
+    what we actually shipped vs. what we're building.
   </p>
 
-  <section class="shipped">
-    <article class="card card--shipped">
-      <span class="status">shipped</span>
-      <h2>Brief</h2>
-      <p>
-        daily AI signal for builders. verbatim quotes from the
-        sources that matter. 6 sources scored daily, top signal
-        surfaced in a 2-minute read at 7am.
-      </p>
-      <p class="links">
-        <a href="https://brief.brunny.ai">read a sample</a>
-        {' · '}
-        <a href="https://brief.brunny.ai">subscribe at brief.brunny.ai</a>
-      </p>
-    </article>
-  </section>
-
-  <section class="incubating">
-    <h2>incubating</h2>
-    <p>
-      ideas the team is testing. some of them are even good.
-      we'll post when they're ready.
+  <article class="card card--shipped">
+    <span class="pill pill--shipped">shipped</span>
+    <h2>Brief</h2>
+    <p class="card-tagline">
+      daily AI signal. 6 sources scored every morning, top signal
+      in a 2-minute read at 7am PT.
     </p>
-    <p>want to know when something launches?</p>
-    <SignupForm id="products-signup" source="products" initialStatus={initialStatus} />
+    <p class="card-meta">
+      free. email signup. unsubscribe in every issue.
+    </p>
+    <p class="links">
+      <a href="https://brief.brunny.ai">read a sample</a>
+      {' · '}
+      <a href="https://brief.brunny.ai">get the brief at 7am tomorrow</a>
+    </p>
+  </article>
+
+  <article class="card card--incubating">
+    <span class="pill pill--incubating">incubating</span>
+    <h2>warren</h2>
+    <p class="card-tagline">
+      the company website you're on. dogfooded by the team that
+      runs brunny.ai.
+    </p>
+    <p class="card-meta">
+      not open. we're testing it ourselves first.
+    </p>
+    <p class="links">
+      <a href="/team">see the team building it</a>
+    </p>
+  </article>
+
+  <article class="card card--internal">
+    <span class="pill pill--internal">internal</span>
+    <h2>agent-os</h2>
+    <p class="card-tagline">
+      the scaffolding for running an AI company. rules, skills,
+      meetings, crons. we use it every day.
+    </p>
+    <p class="card-meta">
+      source-available. open for inspection, not yet open for use.
+    </p>
+    <p class="links">
+      <a href="https://github.com/Brunny-AI/agent-os">source on GitHub</a>
+    </p>
+  </article>
+
+  <section class="signup-block">
+    <h2>want an update when something launches?</h2>
+    <SignupForm
+      id="products-signup"
+      source="products"
+      submitLabel="notify me"
+      initialStatus={initialStatus}
+    />
     <p class="fine-print">
-      one-line updates when something launches. no drip
-      campaign. no newsletter spam.
+      one line when things ship. no drip. no newsletter spam.
     </p>
   </section>
 </Layout>
@@ -76,33 +105,66 @@ const initialStatus: SignupStatus =
   .card {
     background: #fff;
     border: 1px solid #eee;
-    border-radius: 8px;
+    border-radius: 16px;
     padding: 2rem;
-    margin-block-end: 3rem;
+    margin-block-end: 1.5rem;
+    transition: border-color 120ms ease;
   }
-  .status {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color: #999;
-    letter-spacing: 0.05em;
-  }
-  .card--shipped .status {
-    color: var(--brunny-accent);
+  .card:hover {
+    border-color: #ff8a78; /* salmon hover per R3 brand */
   }
   .card h2 {
-    margin: 0.25rem 0 1rem 0;
+    margin: 0.5rem 0 0.75rem 0;
+    color: #0d5347; /* cartoon colorPrimary teal */
+  }
+  .card-tagline {
+    font-size: 1.05rem;
+    margin: 0 0 0.5rem 0;
+  }
+  .card-meta {
+    font-size: 0.9rem;
+    color: #555;
+    margin: 0 0 0.75rem 0;
+  }
+  /* Status pills mirror index.astro pattern. Per Derek 06:35Z
+     visual-only differentiation; lifecycle conveyed by pill,
+     description by .card-tagline. */
+  .pill {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .pill--shipped {
+    background: #0d5347;
+    color: #fff;
+  }
+  .pill--incubating {
+    background: #ff8a78;
+    color: #1f3a36;
+  }
+  .pill--internal {
+    background: #e8e2d6;
+    color: #1f3a36;
   }
   .links {
-    margin-block-start: 1rem;
+    margin-block-start: 0.5rem;
   }
-  .incubating h2 {
-    margin-block-end: 1rem;
+  .signup-block {
+    margin-block-start: 3rem;
+    padding-block-start: 2rem;
+    border-block-start: 1px solid #eee;
   }
-  .incubating p {
+  .signup-block h2 {
     margin-block-end: 1rem;
+    color: #0d5347;
   }
   .fine-print {
     font-size: 0.9rem;
     color: #777;
+    margin-block-start: 0.75rem;
   }
 </style>
