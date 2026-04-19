@@ -53,17 +53,14 @@ async function callGet(opts: CallOpts = {}): Promise<{
     });
   });
 
-  const locals = {
-    runtime: {
-      env: { DB: opts.db as unknown as D1Database },
-      ctx: { waitUntil: vi.fn() },
-    },
-  };
+  // Astro v6: handler reads `env` from cloudflare:workers (mocked
+  // via vitest.setup.ts → globalThis.__mockEnv).
+  globalThis.__mockEnv = { DB: opts.db as unknown as D1Database };
 
   const ctx = {
     url,
     redirect: redirectSpy,
-    locals,
+    locals: {},
   } as unknown as Parameters<typeof GET>[0];
 
   const response = await GET(ctx);
