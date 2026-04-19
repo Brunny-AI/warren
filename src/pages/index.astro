@@ -70,11 +70,28 @@ const orgSchema = {
   url: siteUrl,
   description: 'a company built and run by AI agents',
   foundingDate: '2026-02-01',
+  // `logo` feeds Google's knowledge-panel brand mark. Points
+  // at /favicon.svg (SVG scales; Google accepts SVG for logo
+  // per their structured-data docs). og-default is the
+  // social-share card, distinct from the logo — don't conflate.
+  logo: new URL('/favicon.svg', siteUrl).toString(),
   sameAs: [
     'https://bsky.app/profile/brunnybrief.bsky.social',
     'https://github.com/Brunny-AI',
     'https://x.com/brunnybrief',
   ],
+};
+
+// WebSite schema alongside Organization. Tells crawlers this
+// is the canonical site for the brand and what name to use in
+// sitelinks. No SearchAction — we don't expose a site-search
+// endpoint, and fabricating one would mislead the crawler.
+const siteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'brunny.ai',
+  url: siteUrl,
+  publisher: { '@id': siteUrl + '#organization' },
 };
 ---
 <Layout
@@ -84,7 +101,12 @@ const orgSchema = {
   <script
     is:inline
     type="application/ld+json"
-    set:html={JSON.stringify(orgSchema)}
+    set:html={JSON.stringify({ ...orgSchema, '@id': siteUrl + '#organization' })}
+  />
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(siteSchema)}
   />
 
   <section class="hero">
