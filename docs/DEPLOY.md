@@ -138,6 +138,49 @@ Then inspect Cloudflare dashboard Workers → Logs for the failing
 request. Common causes: D1 binding ID mismatch in `wrangler.toml`
 vs. actual, missing secret, migration skipped.
 
+## Troubleshooting
+
+### `wrangler d1 migrations apply` errors with "duplicate column name: confirmation_token"
+
+Cause: local `.wrangler/state` cache has the column applied but the
+`d1_migrations` tracker is out of sync (often happens when
+`vitest-pool-workers` or a prior failed run left half-state).
+SQLite `ALTER TABLE ... ADD COLUMN` does not support
+`IF NOT EXISTS` (per the SQLite spec), so the migration cannot
+self-recover.
+
+Cleanup:
+
+```bash
+# Local dev only — never against prod.
+rm -rf .wrangler/state
+npx wrangler d1 migrations apply warren --local
+```
+
+This rebuilds the local D1 from scratch with all migrations applied
+in order. Production D1 is unaffected because the d1_migrations
+tracker there prevents re-runs.
+
+### `POST /api/signup` returns 500 locally
+
+Likely causes (in order of frequency):
+
+1. **D1 binding missing or unmigrated.** Check
+   `npx wrangler d1 execute warren --local --command="SELECT name FROM sqlite_master WHERE type='table'"`
+   shows the `signups` and `d1_migrations` tables. If not, run the
+   migrations apply from §"duplicate column name" above.
+2. **`RESEND_API_KEY` secret not set in `.dev.vars`.** Signup INSERT
+   succeeds but the post-insert email send throws and the handler
+   surfaces 500 if `ctx.waitUntil` propagation isn't masking it.
+   Add the key to `.dev.vars` (or set `RESEND_FROM_ADDRESS=` to a
+   verified Resend sender).
+3. **`KV` rate-limit binding placeholder.** `RATE_LIMIT` is a
+   placeholder until provisioned. The handler fails open on KV
+   errors, but if your local wrangler config has the binding
+   pointing at a non-existent namespace ID, the request can 500
+   before reaching the fail-open path. Comment out the binding in
+   `wrangler.toml` for local dev or provision the namespace.
+
 ## Non-goals (intentionally not here)
 
 - No CI-deploy workflow. Deploys are founder-initiated for now
