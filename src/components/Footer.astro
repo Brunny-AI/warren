@@ -1,18 +1,4 @@
 ---
-const YEAR = new Date().getFullYear();
+import FooterReact from './FooterReact';
 ---
-<footer>
-  <p>{`© ${YEAR} Brunny AI LLC. All rights reserved.`}</p>
-</footer>
-
-<style>
-  footer {
-    border-top: 1px solid #eee;
-    margin-block-start: 4rem;
-    padding-block: 2rem;
-    padding-inline: 1rem;
-    text-align: center;
-    color: #666;
-    font-size: 0.9rem;
-  }
-</style>
+<FooterReact client:only="react" />

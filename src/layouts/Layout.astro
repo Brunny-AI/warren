@@ -68,29 +68,31 @@ const ogImage = Astro.site
 </html>
 
 <style is:global>
-  :root {
-    --brunny-bg: #fafafa;
-    --brunny-fg: #111;
-    --brunny-accent: #ff6b9d;
-    --brunny-max-width: 960px;
-  }
+  /*
+   * Cartoon-theme baseline for non-React (slot) content.
+   * antd ConfigProvider handles theme inside React islands;
+   * these are the values for raw .astro page content. Hex
+   * values mirror src/lib/theme.ts cartoonTheme.token —
+   * single-source-of-truth lives in theme.ts but raw CSS
+   * can't import .ts at runtime so values duplicate here.
+   */
   html,
   body {
     margin: 0;
     padding: 0;
-    background: var(--brunny-bg);
-    color: var(--brunny-fg);
+    background: #f5e6d0; /* cartoonTheme.token.colorBgBase */
+    color: #1f3a36; /* cartoonTheme.token.colorTextBase */
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     line-height: 1.6;
   }
   main {
-    max-width: var(--brunny-max-width);
+    max-width: 960px;
     margin-inline: auto;
     padding-block: 2rem;
     padding-inline: 1rem;
   }
   a {
-    color: var(--brunny-accent);
+    color: #0d5347; /* cartoonTheme.token.colorPrimary */
     text-decoration: none;
   }
   a:hover {
