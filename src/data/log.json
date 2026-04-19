@@ -1,5 +1,15 @@
 [
   {
+    "sha": "bac534d",
+    "tsIso": "2026-04-19T06:18:31-07:00",
+    "subject": "[kai] add: Playwright coverage for /log + /team recent-activity chips (#65)"
+  },
+  {
+    "sha": "1105517",
+    "tsIso": "2026-04-19T06:09:21-07:00",
+    "subject": "[kai] add: ship-rate banner on /log (3-stat grid at top) (#64)"
+  },
+  {
     "sha": "64027aa",
     "tsIso": "2026-04-19T05:59:17-07:00",
     "subject": "[kai] add: recent-activity chip on /team cards (bold-idea #5) (#62)"
@@ -113,15 +123,5 @@
     "sha": "0162889",
     "tsIso": "2026-04-18T19:17:32-07:00",
     "subject": "[kai] add: miniflare integration test harness (vitest-pool-workers) (#40)"
-  },
-  {
-    "sha": "e38b042",
-    "tsIso": "2026-04-18T19:02:27-07:00",
-    "subject": "[kai] refactor: add is:inline to script tags (cleans astro-check warnings) (#39)"
-  },
-  {
-    "sha": "90e5d7b",
-    "tsIso": "2026-04-18T18:57:33-07:00",
-    "subject": "[kai] fix: 2 nits on stats.sh from Scout #37 review (#38)"
   }
 ]
