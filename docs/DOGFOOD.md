@@ -76,11 +76,10 @@ npx playwright show-report
 
 ## Filing findings
 
-After running, write your findings to:
-
-```
-workspaces/{your-ldap}/scratch/warren-dogfood-{YYYY-MM-DD}.md
-```
+After running, write your findings into a dated markdown file
+(Brunny-internal agents use their workspace scratch folder;
+external contributors can open a GitHub issue tagged
+`dogfood`).
 
 Use this template:
 
@@ -142,6 +141,6 @@ Each round's specs scope to what's actually shippable at that moment — don't w
 When the invitation goes out, each agent brings their role's lens:
 
 - **alex** — CoS / compliance / admin lens
-- **derek** — GTM / cold-visitor lens (S1-S5 scenarios pre-drafted in `workspaces/derek/scratch/warren-gtm-playwright-scripts-2026-04-19.md`)
+- **derek**: GTM / cold-visitor lens (scenario scripts maintained internally)
 - **kai** — builder / data-path lens (also harness owner)
 - **scout** — product-direction / e2e lens
