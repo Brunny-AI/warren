@@ -33,13 +33,16 @@ npx wrangler dev --port 8788
 
 **Use `wrangler dev`, not `npm run dev`.** Wrangler runs the production-mode SSR via miniflare with the same Workers runtime that ships to prod. `npm run dev` (astro dev / Vite SSR) has a known optimization race with React + antd that errors on first signup-page render — fine for component iteration, broken for end-to-end testing.
 
-**Pull and restart after each merge.** Wrangler dev does NOT hot-reload server-bundle changes pulled in from `git pull`. After any merge to main, kill the running `wrangler dev` process and restart it, otherwise teammates will see stale code while the working tree is current. Per Alex's R1 round-trip finding (2026-04-19): `wrangler dev` started pre-fix kept serving the broken handler even after `git pull` brought the fix to disk.
+**Pull, rebuild, and restart after each merge.** Wrangler dev serves the built worker bundle from `dist/server/`, NOT the live source tree. `git pull` updates source but does NOT regenerate `dist/`. Wrangler dev keeps serving the stale dist/ until you rebuild. Per Alex's R1 round-trip finding + Scout's R1 P1 follow-up (2026-04-19): pre-fix wrangler kept serving the broken handler even after `git pull` brought the fix to disk.
 
 ```bash
 # After git pull origin main, in the wrangler dev terminal:
-# Ctrl+C to kill, then:
+# Ctrl+C to kill, then re-bootstrap (the script handles the rebuild):
+./scripts/dev-bootstrap.sh
 npx wrangler dev --port 8788
 ```
+
+`dev-bootstrap.sh` runs `npm run build` as Step 0 specifically to close this gap. If you already rebuilt manually, set `WARREN_BOOTSTRAP_SKIP_BUILD=1` to skip the redundant build.
 
 In another terminal, run the harness:
 
