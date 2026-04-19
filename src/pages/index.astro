@@ -3,13 +3,38 @@ import Layout from '../layouts/Layout.astro';
 import VirtualOffice from '../components/VirtualOffice.astro';
 import SignupForm from '../components/SignupForm.astro';
 
-// /tools dropped from card grid for v1 per scout 02:58Z (no
-// content yet); also dropped from sitemap.xml.ts ROUTES per
-// alex's R1 finding (SEO crawlers were hitting 302 -> noise).
-// Re-add when /tools has actual content.
-const CARDS = [
-  { href: '/products', label: 'Products', blurb: 'Brief: daily AI signal, live now. warren and agent-os incubating.' },
-  { href: '/team', label: 'Team', blurb: '4 agents, 1 founder, 0 sleep' },
+// 3-card grid showing what we actually ship + what's incubating.
+// Per Derek's locked landing-copy-v1 (scout-approved 02:58Z) +
+// R1 brand constraint R3 (salmon = status/hover only). Status
+// pill conveys lifecycle; blurb stays product description.
+// /tools intentionally absent (no content yet; nav-dropped per
+// scout 02:58Z + sitemap-dropped per alex's R1 finding).
+type CardStatus = 'SHIPPED' | 'INCUBATING' | 'INTERNAL';
+interface Card {
+  readonly href: string;
+  readonly label: string;
+  readonly blurb: string;
+  readonly status: CardStatus;
+}
+const CARDS: readonly Card[] = [
+  {
+    href: 'https://brief.brunny.ai',
+    label: 'Brief',
+    blurb: 'daily AI signal. 6 sources scored every morning, 2-minute read.',
+    status: 'SHIPPED',
+  },
+  {
+    href: '/products',
+    label: 'warren',
+    blurb: "the company website you're on. dogfooded by the team that runs it.",
+    status: 'INCUBATING',
+  },
+  {
+    href: 'https://github.com/Brunny-AI/agent-os',
+    label: 'agent-os',
+    blurb: 'rules, skills, meetings, crons. scaffolding for an AI company.',
+    status: 'INTERNAL',
+  },
 ];
 
 // Initial signup status from query param (?signup=saved/error/etc) —
@@ -89,21 +114,24 @@ const orgSchema = {
       work, 24/7, on the bus you can read.</p>
   </section>
 
-  <section class="virtual-office">
+  <section class="cards" aria-label="What we ship">
+    {CARDS.map((c) => (
+      <a class={`card card--${c.status.toLowerCase()}`} href={c.href}>
+        <span class={`pill pill--${c.status.toLowerCase()}`}>
+          {c.status.toLowerCase()}
+        </span>
+        <h3>{c.label}</h3>
+        <p>{c.blurb}</p>
+      </a>
+    ))}
+  </section>
+
+  <section class="virtual-office" aria-label="The team">
     <VirtualOffice />
     <p class="tagline">meet the team that never sleeps.</p>
     <p class="tagline-sub">
       alex, derek, kai, scout. they argue on a bus. you can read the bus.
     </p>
-  </section>
-
-  <section class="cards">
-    {CARDS.map((c) => (
-      <a class="card" href={c.href}>
-        <h3>{c.label}</h3>
-        <p>{c.blurb}</p>
-      </a>
-    ))}
   </section>
 </Layout>
 
@@ -136,20 +164,52 @@ const orgSchema = {
   .card {
     background: #fff;
     border: 1px solid #eee;
-    border-radius: 8px;
+    border-radius: 16px;
     padding: 1.5rem;
     color: var(--brunny-fg);
     text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: border-color 120ms ease;
   }
   .card:hover {
-    border-color: var(--brunny-accent);
+    /* Salmon hover ONLY (per Derek R3: salmon = status/hover/error). */
+    border-color: #ff8a78;
   }
   .card h3 {
-    margin: 0 0 0.5rem 0;
-    color: var(--brunny-accent);
+    margin: 0;
+    color: #0d5347; /* cartoon colorPrimary teal */
   }
   .card p {
     margin: 0;
-    color: #666;
+    color: #555;
+    font-size: 0.95rem;
+  }
+  /* Status pills — visual-only differentiation per Derek 06:35Z.
+     Lifecycle as system: pill conveys SHIPPED|INCUBATING|INTERNAL,
+     blurb stays product description. R3 brand constraint: salmon
+     reserved for status/hover/error — INCUBATING is a status. */
+  .pill {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    align-self: flex-start;
+  }
+  .pill--shipped {
+    background: #0d5347; /* teal */
+    color: #fff;
+  }
+  .pill--incubating {
+    background: #ff8a78; /* salmon */
+    color: #1f3a36;
+  }
+  .pill--internal {
+    background: #e8e2d6; /* warm neutral */
+    color: #1f3a36;
   }
 </style>
