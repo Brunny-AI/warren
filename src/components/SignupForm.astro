@@ -1,34 +1,18 @@
 ---
 /**
- * SignupForm — inline email-capture form.
+ * SignupForm — host wrapper for SignupFormReact island.
  *
- * Used on /products and /contact. Works with or without
- * JavaScript:
- *   - With JS: intercepts submit, POSTs JSON to /api/signup,
- *     renders status inline, disables button during request.
- *   - Without JS: native form POST (application/x-www-form-
- *     urlencoded) to /api/signup which 303-redirects back to
- *     the page with ?signup=saved|missing|invalid. The host
- *     page's frontmatter reads the query param and renders
- *     the same status line server-side.
+ * Used on /products and /contact. Astro SSR's the React island
+ * (via client:load, NOT client:only) so the rendered HTML
+ * contains a native <form action="/api/signup" method="post">
+ * for no-JS visitors. On hydration, antd's onFinish handler
+ * intercepts via preventDefault and POSTs JSON.
  *
- * The host page is responsible for translating the ?signup
- * query param into an initial status. This keeps the
- * component free of page-level layout decisions.
- *
- * Props:
- *   id — DOM id suffix. Pass a unique value per form instance
- *        on a page. Defaults to 'signup' (sufficient for
- *        pages with one form).
- *   source — page-scoped identifier the backend uses for
- *        source-aware redirects (303 lands back on the
- *        originating page) and per-source D1 provenance.
- *        Allowlist enforced server-side; unknown values
- *        fall back to 'products'. Defaults to 'products'.
- *   submitLabel — button text; defaults to 'notify me'.
- *   initialStatus — { text, kind: 'ok' | 'err' } | null;
- *        pre-render from host page's ?signup= check.
+ * Server-side query-param to initialStatus translation lives
+ * in the host page (products.astro / contact.astro).
  */
+import SignupFormReact from './SignupFormReact';
+
 interface Props {
   readonly id?: string;
   readonly source?: string;
@@ -42,134 +26,11 @@ const {
   submitLabel = 'notify me',
   initialStatus = null,
 } = Astro.props;
-
-const formId = `${id}-form`;
-const statusId = `${id}-status`;
-const submitId = `${id}-submit`;
-const emailId = `${id}-email`;
 ---
-<form
-  class='signup'
-  id={formId}
-  action='/api/signup'
-  method='post'
->
-  <label for={emailId} class='visually-hidden'>email</label>
-  <input type='hidden' name='source' value={source} />
-  <input
-    id={emailId}
-    name='email'
-    type='email'
-    required
-    autocomplete='email'
-    placeholder='you@example.com'
-  />
-  <button id={submitId} type='submit'>{submitLabel}</button>
-  <p
-    class={`signup-status${initialStatus ? ` signup-status--${initialStatus.kind}` : ''}`}
-    id={statusId}
-    aria-live='polite'
-  >
-    {initialStatus?.text}
-  </p>
-</form>
-
-<script is:inline define:vars={{ formId, statusId, submitId, source }}>
-  const form = document.getElementById(formId);
-  const status = document.getElementById(statusId);
-  const submit = document.getElementById(submitId);
-  if (form && status && submit) {
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      if (!form.reportValidity()) return;
-      const email = form.elements.namedItem('email').value;
-      submit.disabled = true;
-      status.textContent = 'sending…';
-      status.className = 'signup-status';
-      try {
-        const res = await fetch('/api/signup', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ email, source }),
-        });
-        const data = await res.json();
-        if (res.ok && data.ok) {
-          form.reset();
-          status.textContent =
-            "got it. we'll email you when something ships.";
-          status.className = 'signup-status signup-status--ok';
-        } else {
-          status.textContent =
-            data.error ?? 'something went wrong. try again?';
-          status.className = 'signup-status signup-status--err';
-        }
-      } catch {
-        status.textContent = 'network hiccup. try again?';
-        status.className = 'signup-status signup-status--err';
-      } finally {
-        submit.disabled = false;
-      }
-    });
-  }
-</script>
-
-<style>
-  .signup {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-block: 1rem 0.5rem;
-  }
-  .signup input {
-    flex: 1 1 16rem;
-    min-inline-size: 12rem;
-    padding: 0.6rem 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font: inherit;
-  }
-  .signup input:focus-visible {
-    outline: 2px solid var(--brunny-accent);
-    outline-offset: 2px;
-  }
-  .signup button {
-    padding: 0.6rem 1.2rem;
-    border: 1px solid var(--brunny-accent);
-    border-radius: 6px;
-    background: var(--brunny-accent);
-    color: #fff;
-    font: inherit;
-    cursor: pointer;
-  }
-  .signup button:hover {
-    filter: brightness(0.95);
-  }
-  .signup button:disabled {
-    cursor: wait;
-    opacity: 0.7;
-  }
-  .signup-status {
-    flex-basis: 100%;
-    margin: 0;
-    min-block-size: 1.25rem;
-    font-size: 0.95rem;
-    color: #555;
-  }
-  .signup-status--ok {
-    color: var(--brunny-accent);
-  }
-  .signup-status--err {
-    color: #b3261e;
-  }
-  .visually-hidden {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    margin: -1px;
-    padding: 0;
-    border: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-</style>
+<SignupFormReact
+  id={id}
+  source={source}
+  submitLabel={submitLabel}
+  initialStatus={initialStatus}
+  client:load
+/>
