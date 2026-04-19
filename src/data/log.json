@@ -1,0 +1,127 @@
+[
+  {
+    "sha": "aea5b27",
+    "tsIso": "2026-04-19T05:28:10-07:00",
+    "subject": "[kai] add: /log stub + hero 'peek at the bus' CTA (bold-idea #10 + #3-lite) (#58)"
+  },
+  {
+    "sha": "15786c7",
+    "tsIso": "2026-04-19T01:28:32-07:00",
+    "subject": "[kai] fix: signup-form email validation (noValidate + regex pattern; R2 P1-2) (#57)"
+  },
+  {
+    "sha": "7646bf5",
+    "tsIso": "2026-04-19T01:18:24-07:00",
+    "subject": "[kai] fix: bump fine-print / tagline-sub / noscript color #777 -> #555 (WCAG AA on R2 P1-1) (#56)"
+  },
+  {
+    "sha": "6b98933",
+    "tsIso": "2026-04-19T01:08:26-07:00",
+    "subject": "[kai] refactor: Nav.astro plain SSR nav, drop antd Menu + NavReact island (#55)"
+  },
+  {
+    "sha": "6b882ea",
+    "tsIso": "2026-04-19T00:48:50-07:00",
+    "subject": "[kai] add: .dev.vars.example + DOGFOOD cross-ref (Alex R2 P2 unblock) (#54)"
+  },
+  {
+    "sha": "aea8215",
+    "tsIso": "2026-04-19T00:43:28-07:00",
+    "subject": "[kai] fix: scroll-padding-top + scope nav-link test to landmark (R2 partial) (#53)"
+  },
+  {
+    "sha": "8d43272",
+    "tsIso": "2026-04-19T00:27:51-07:00",
+    "subject": "[kai] PR-\u03b4: 5-page restyle (Derek's locked v1 + brand R1/R2/R3) (#52)"
+  },
+  {
+    "sha": "3b92b87",
+    "tsIso": "2026-04-18T23:52:45-07:00",
+    "subject": "[kai] fix: dev-bootstrap.sh adds npm run build (Scout R1 P1) (#51)"
+  },
+  {
+    "sha": "b50f4a9",
+    "tsIso": "2026-04-18T23:34:05-07:00",
+    "subject": "[kai] docs: 3 R1 P2 follow-ups (DEPLOY ADMIN_TOKEN + DOGFOOD pull-restart + CSP TODO marker) (#50)"
+  },
+  {
+    "sha": "cd83ca5",
+    "tsIso": "2026-04-18T23:32:33-07:00",
+    "subject": "[kai] fix: Astro v6 env migration (P0 dogfood R1) (#49)"
+  },
+  {
+    "sha": "91f213a",
+    "tsIso": "2026-04-18T22:57:42-07:00",
+    "subject": "[kai] fix: hero conversion + /tools cleanup (P0+P1 dogfood R1) (#48)"
+  },
+  {
+    "sha": "66f5aad",
+    "tsIso": "2026-04-18T22:47:51-07:00",
+    "subject": "[kai] fix: dev-bootstrap.sh + docs (P0 dogfood R1 \u2014 wrangler 4.83 silent fail) (#47)"
+  },
+  {
+    "sha": "f1ede33",
+    "tsIso": "2026-04-18T22:32:34-07:00",
+    "subject": "[kai] docs: add Troubleshooting section to DEPLOY.md (PR-\u03b3-data-docs) (#46)"
+  },
+  {
+    "sha": "754e159",
+    "tsIso": "2026-04-18T22:27:28-07:00",
+    "subject": "[kai] add: Playwright dogfood harness (PR-\u03b3-dogfood) (#45)"
+  },
+  {
+    "sha": "d6f9a75",
+    "tsIso": "2026-04-18T22:12:27-07:00",
+    "subject": "[kai] add: SignupForm \u2192 React + antd Form (PR-\u03b3-visual, Path A) (#44)"
+  },
+  {
+    "sha": "fb85c09",
+    "tsIso": "2026-04-18T21:43:24-07:00",
+    "subject": "[kai] add: antd SSR per-island helper (PR-\u03b3-ssr foundation) (#43)"
+  },
+  {
+    "sha": "ed184b7",
+    "tsIso": "2026-04-18T21:02:38-07:00",
+    "subject": "[kai] add: PR-\u03b2 Layout chrome \u2192 antd Cartoon (Nav/Footer islands + raw-CSS strip) (#42)"
+  },
+  {
+    "sha": "9f7fa43",
+    "tsIso": "2026-04-18T20:22:32-07:00",
+    "subject": "[kai] add: antd + Cartoon Style theme foundation (PR-\u03b1, no page changes) (#41)"
+  },
+  {
+    "sha": "0162889",
+    "tsIso": "2026-04-18T19:17:32-07:00",
+    "subject": "[kai] add: miniflare integration test harness (vitest-pool-workers) (#40)"
+  },
+  {
+    "sha": "e38b042",
+    "tsIso": "2026-04-18T19:02:27-07:00",
+    "subject": "[kai] refactor: add is:inline to script tags (cleans astro-check warnings) (#39)"
+  },
+  {
+    "sha": "90e5d7b",
+    "tsIso": "2026-04-18T18:57:33-07:00",
+    "subject": "[kai] fix: 2 nits on stats.sh from Scout #37 review (#38)"
+  },
+  {
+    "sha": "aaa58c1",
+    "tsIso": "2026-04-18T18:47:39-07:00",
+    "subject": "[kai] add: scripts/stats.sh \u2014 pretty-print /api/admin/signup-stats (#37)"
+  },
+  {
+    "sha": "ae90468",
+    "tsIso": "2026-04-18T17:57:28-07:00",
+    "subject": "[kai] refactor: drop redundant WHERE on MAX(confirmed_at) (#36)"
+  },
+  {
+    "sha": "ccc8a96",
+    "tsIso": "2026-04-18T17:22:29-07:00",
+    "subject": "[kai] add: logEvent('confirmation_skipped_no_resend_config') on silent-skip (#35)"
+  },
+  {
+    "sha": "8a825e2",
+    "tsIso": "2026-04-18T17:12:33-07:00",
+    "subject": "[kai] add: docs/DEPLOY.md \u2014 first-time provisioning checklist (#34)"
+  }
+]
