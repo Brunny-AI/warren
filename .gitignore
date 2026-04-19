@@ -35,3 +35,8 @@ logs/
 # Test
 coverage/
 .nyc_output/
+
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/
