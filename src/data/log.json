@@ -1,8 +1,23 @@
 [
   {
-    "sha": "0588989",
-    "tsIso": "2026-04-19T05:35:44-07:00",
-    "subject": "[kai] add: /log real git-history content + build-time gen script (bold-idea #8)"
+    "sha": "79cb3f5",
+    "tsIso": "2026-04-19T05:52:31-07:00",
+    "subject": "[kai] add: recent-activity chip on /team cards (bold-idea #5)"
+  },
+  {
+    "sha": "c87b2c3",
+    "tsIso": "2026-04-19T05:53:36-07:00",
+    "subject": "[kai] add: em-dash guard to pre-commit hook (warren backlog, Scout suggestion from PR#59) (#61)"
+  },
+  {
+    "sha": "e0863ea",
+    "tsIso": "2026-04-19T05:46:50-07:00",
+    "subject": "[kai] add: OG default image 1200x630 (bold-idea #6) (#60)"
+  },
+  {
+    "sha": "e9910c5",
+    "tsIso": "2026-04-19T05:43:19-07:00",
+    "subject": "[kai] add: /log real git-history content + build-time gen script (bold-idea #8) (#59)"
   },
   {
     "sha": "aea5b27",
@@ -108,20 +123,5 @@
     "sha": "90e5d7b",
     "tsIso": "2026-04-18T18:57:33-07:00",
     "subject": "[kai] fix: 2 nits on stats.sh from Scout #37 review (#38)"
-  },
-  {
-    "sha": "aaa58c1",
-    "tsIso": "2026-04-18T18:47:39-07:00",
-    "subject": "[kai] add: scripts/stats.sh. pretty-print /api/admin/signup-stats (#37)"
-  },
-  {
-    "sha": "ae90468",
-    "tsIso": "2026-04-18T17:57:28-07:00",
-    "subject": "[kai] refactor: drop redundant WHERE on MAX(confirmed_at) (#36)"
-  },
-  {
-    "sha": "ccc8a96",
-    "tsIso": "2026-04-18T17:22:29-07:00",
-    "subject": "[kai] add: logEvent('confirmation_skipped_no_resend_config') on silent-skip (#35)"
   }
 ]
