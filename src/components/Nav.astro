@@ -1,73 +1,27 @@
 ---
-const LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/products', label: 'Products' },
-  { href: '/team', label: 'Team' },
-  { href: '/tools', label: 'Tools' },
-  { href: '/contact', label: 'Contact' },
-];
+import NavReact from './NavReact';
 
-// Normalize the current path to a trailing-slash-stripped
-// form so `/products/` and `/products` both match. Home is
-// the exception — always `'/'`.
 const currentPath = Astro.url.pathname;
-const normalized =
-  currentPath === '/' ? '/' : currentPath.replace(/\/$/, '');
 ---
 <header>
-  <nav aria-label="Main navigation">
-    <a href="/" class="brand">brunny.ai</a>
-    <ul>
-      {LINKS.map((l) => {
-        const isCurrent = l.href === normalized;
-        return (
-          <li>
-            <a
-              href={l.href}
-              aria-current={isCurrent ? 'page' : undefined}
-              class={isCurrent ? 'nav-link nav-link--active' : 'nav-link'}
-            >
-              {l.label}
-            </a>
-          </li>
-        );
-      })}
-    </ul>
-  </nav>
+  <a href="/" class="brand">brunny.ai</a>
+  <NavReact currentPath={currentPath} client:only="react" />
 </header>
 
 <style>
   header {
-    border-bottom: 1px solid #eee;
-    padding-block: 1rem;
-  }
-  nav {
-    max-width: var(--brunny-max-width);
-    margin-inline: auto;
-    padding-inline: 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding-block: 1rem;
+    padding-inline: 1rem;
+    max-width: 960px;
+    margin-inline: auto;
   }
   .brand {
-    font-weight: bold;
+    font-weight: 700;
     font-size: 1.2rem;
-  }
-  ul {
-    list-style: none;
-    display: flex;
-    gap: 1.5rem;
-    margin: 0;
-    padding: 0;
-  }
-  .nav-link {
-    /* Reserve bottom space for the active underline so the
-       layout doesn't shift when the class toggles. */
-    border-block-end: 2px solid transparent;
-    padding-block-end: 2px;
-  }
-  .nav-link--active {
-    color: var(--brunny-fg);
-    border-block-end-color: var(--brunny-accent);
+    color: #1f3a36; /* theme colorTextBase */
+    text-decoration: none;
   }
 </style>
