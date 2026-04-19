@@ -25,10 +25,10 @@ const canonical = Astro.site
   ? new URL(Astro.url.pathname, Astro.site).toString()
   : Astro.url.toString();
 
-// Default OG image. The actual PNG lands in a follow-up PR
-// (design asset dependency). Until then, scrapers fall back
-// to favicon or show no preview; the meta tag path is future-
-// proof so the asset swap is one-line.
+// Default OG image, 1200x630 per OG spec. Renders on every
+// Bluesky / Twitter / LinkedIn / Slack / Discord unfurl of any
+// warren URL. Source SVG at public/og-default.svg (edit there,
+// regenerate PNG via `rsvg-convert -w 1200 -h 630 ...`).
 const ogImage = Astro.site
   ? new URL('/og-default.png', Astro.site).toString()
   : '/og-default.png';

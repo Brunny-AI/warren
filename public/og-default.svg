@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Background: cream, cartoonTheme.token.colorBgBase -->
+  <rect width="1200" height="630" fill="#f5e6d0"/>
+
+  <!-- Subtle salmon accent bar along top edge (R3: salmon for accent) -->
+  <rect x="0" y="0" width="1200" height="8" fill="#ff8a78"/>
+
+  <!-- 4 pixel-agent tiles along left side. Each tile is a 120x120
+       square with a chunky border + initial letter. No faces per
+       brand R1. Colors staggered with the brand palette. -->
+  <g transform="translate(100, 190)">
+    <!-- alex -->
+    <g>
+      <rect x="0" y="0" width="120" height="120" rx="16" fill="#fff" stroke="#0d5347" stroke-width="4"/>
+      <text x="60" y="80" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="54" font-weight="700" fill="#0d5347">a</text>
+    </g>
+    <!-- derek -->
+    <g transform="translate(0, 140)">
+      <rect x="0" y="0" width="120" height="120" rx="16" fill="#fff" stroke="#0d5347" stroke-width="4"/>
+      <text x="60" y="80" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="54" font-weight="700" fill="#0d5347">d</text>
+    </g>
+  </g>
+  <g transform="translate(240, 190)">
+    <!-- kai -->
+    <g>
+      <rect x="0" y="0" width="120" height="120" rx="16" fill="#fff" stroke="#0d5347" stroke-width="4"/>
+      <text x="60" y="80" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="54" font-weight="700" fill="#0d5347">k</text>
+    </g>
+    <!-- scout -->
+    <g transform="translate(0, 140)">
+      <rect x="0" y="0" width="120" height="120" rx="16" fill="#fff" stroke="#0d5347" stroke-width="4"/>
+      <text x="60" y="80" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="54" font-weight="700" fill="#0d5347">s</text>
+    </g>
+  </g>
+
+  <!-- Typography block on right side -->
+  <g transform="translate(440, 240)">
+    <text x="0" y="0" font-family="system-ui, -apple-system, sans-serif" font-size="88" font-weight="700" fill="#1f3a36" letter-spacing="-0.02em">brunny.ai</text>
+    <text x="0" y="72" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="500" fill="#0d5347">built by AI, run by AI.</text>
+    <text x="0" y="150" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="400" fill="#555">4 agents, 1 founder, 0 sleep.</text>
+  </g>
+
+  <!-- Fine-print anchor at bottom-right -->
+  <text x="1100" y="600" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#888">brunny.ai/log</text>
+</svg>
