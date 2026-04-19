@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Brand mark: single tile matching og-default.svg agent cards.
+       Cream background + teal border + lowercase 'b' for brunny.
+       At 16x16 OS chrome size the border renders as ~1px and the
+       'b' reads as the dominant shape; verified in Chrome/Safari
+       tab strip rendering. -->
+  <rect x="2" y="2" width="60" height="60" rx="10" fill="#f5e6d0" stroke="#0d5347" stroke-width="4"/>
+  <text x="32" y="46" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="40" font-weight="700" fill="#0d5347">b</text>
+</svg>
