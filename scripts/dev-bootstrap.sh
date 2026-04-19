@@ -23,6 +23,18 @@ cd "$(dirname "$0")/.."
 
 echo "==> warren dev bootstrap"
 
+# Step 0: rebuild dist/. Wrangler dev serves the built worker
+# bundle from dist/server/, NOT the live source tree. Stale dist/
+# silently shadows post-pull source changes — Scout caught this
+# class on dogfood Round 1 (post-#49 merge: pulled fix, but
+# wrangler kept serving pre-fix dist/ → still 500). Set
+# WARREN_BOOTSTRAP_SKIP_BUILD=1 to skip if you've already built
+# (e.g., in CI or after manual `npm run build`).
+if [[ "${WARREN_BOOTSTRAP_SKIP_BUILD:-0}" != "1" ]]; then
+  echo "==> rebuilding dist/ (set WARREN_BOOTSTRAP_SKIP_BUILD=1 to skip)"
+  npm run build
+fi
+
 if [[ -d .wrangler/state ]]; then
   echo "==> existing .wrangler/state found"
   if [[ "${WARREN_BOOTSTRAP_RESET:-0}" == "1" ]]; then
