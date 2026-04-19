@@ -89,6 +89,15 @@ export default function SignupFormReact({
   // visitors get a working native POST. With client:load (NOT
   // client:only) the SSR HTML carries these attributes; on
   // hydration, our onFinish handler intercepts via preventDefault.
+  //
+  // noValidate suppresses the browser's HTML5 email-pattern check
+  // on the input[type=email]. Without it, the browser intercepts
+  // submit on a malformed email value BEFORE antd Form sees the
+  // submit event, blocks it natively, and antd's validation never
+  // fires — so our inline error message ("invalid email format.")
+  // never renders. Observed in R2 dogfood walkthrough.spec P1-2.
+  // The no-JS fallback still POSTs via native form submit, which
+  // the server-side /api/signup handler validates independently.
   return (
     <ConfigProvider theme={cartoonTheme}>
       <Form<SignupValues>
@@ -98,6 +107,7 @@ export default function SignupFormReact({
         autoComplete="on"
         action="/api/signup"
         method="post"
+        noValidate
       >
         {/* Visually-hidden <label for> preserves the explicit
             label-for-input semantic. aria-label on Input alone
@@ -126,9 +136,22 @@ export default function SignupFormReact({
         <input type="hidden" name="source" value={source} />
         <Form.Item
           name="email"
+          validateTrigger={['onBlur', 'onChange']}
           rules={[
             { required: true, message: 'email required.' },
-            { type: 'email', message: 'invalid email format.' },
+            // Use explicit regex pattern rather than antd's
+            // `{ type: 'email' }`. type:email dispatches to
+            // async-validator's built-in email check which (in
+            // antd 6 with our build) races with Playwright's
+            // rapid fill-then-click sequence — the validator
+            // fires AFTER submit attempts, so the error text
+            // doesn't render inside the 3s test window. Regex
+            // pattern validates synchronously on blur/change,
+            // closing R2 dogfood P1-2.
+            {
+              pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: 'invalid email format.',
+            },
           ]}
         >
           <Input
