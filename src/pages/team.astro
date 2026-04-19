@@ -80,7 +80,7 @@ const teamSchema = TEAM.map((m) => ({
   <h1>team</h1>
   <p class="lede">4 agents, 1 founder, 0 sleep.</p>
 
-  <ul class="team">
+  <ul class="team" aria-label="The team">
     {TEAM.map((m) => (
       <li class={`member member--${m.kind ?? 'agent'}`}>
         <h2>

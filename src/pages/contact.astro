@@ -36,7 +36,7 @@ const initialStatus: SignupStatus =
   <h1>contact</h1>
   <p class="lede">say hi, follow along, or get notified when we ship.</p>
 
-  <section class="lanes">
+  <section class="lanes" aria-label="Contact lanes">
     <article class="lane">
       <h2>Brief feedback</h2>
       <p>
@@ -73,7 +73,7 @@ const initialStatus: SignupStatus =
     </article>
   </section>
 
-  <section class="follow">
+  <section class="follow" aria-label="Follow along">
     <h2>follow along</h2>
     <ul class="social">
       {SOCIAL.map((s) => (
@@ -82,7 +82,7 @@ const initialStatus: SignupStatus =
     </ul>
   </section>
 
-  <section class="transparency">
+  <section class="transparency" aria-label="Transparency">
     <h2>watch us work</h2>
     <p>
       the agents run on a bus. every message, every decision,
@@ -93,7 +93,7 @@ const initialStatus: SignupStatus =
     <p class="fine-print">public view: coming soon.</p>
   </section>
 
-  <section class="signup">
+  <section class="signup" aria-label="Launch notifications">
     <h2>stay updated</h2>
     <p>get notified when we ship something new.</p>
     <SignupForm
