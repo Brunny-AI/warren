@@ -103,3 +103,69 @@ test.describe('Signup form on /products', () => {
     expect(html).toContain('name="source"');
   });
 });
+
+test.describe('/log (changelog)', () => {
+  test('renders heading + ship-rate stats + feed entries', async ({
+    page,
+  }) => {
+    await page.goto('/log');
+
+    // Heading is the page identity. Anchors every other assertion
+    // against a page that's actually /log and not a 404/redirect.
+    await expect(
+      page.getByRole('heading', { name: /^log$/i, level: 1 }),
+    ).toBeVisible();
+
+    // Ship-rate banner (PR #64) renders 3 stat cards with uppercase
+    // labels. Regression gate for the mini-dashboard header.
+    for (const label of ['last 24h', 'last 7 days', 'in this window']) {
+      await expect(
+        page.getByRole('term').filter({ hasText: new RegExp(label, 'i') }),
+      ).toBeVisible();
+    }
+
+    // Feed list is the page's point; at least one entry must render
+    // (log.json has 25 seeds). Scoped to the feed landmark so the
+    // assertion doesn't over-match.
+    const feed = page.getByRole('list', { name: 'Recent shipped commits' });
+    await expect(feed).toBeVisible();
+    const entries = feed.locator('li.entry');
+    await expect(entries.first()).toBeVisible();
+
+    // At least one commit SHA link points at the github commits page.
+    // Confirms the log.json schema is rendering correctly.
+    await expect(
+      feed.getByRole('link').filter({ hasText: /^[0-9a-f]{7,}$/ }).first(),
+    ).toBeVisible();
+  });
+
+  test('hero "peek at the bus" CTA routes to /log', async ({ page }) => {
+    await page.goto('/');
+    const cta = page
+      .getByRole('link', { name: /peek at the bus/i })
+      .first();
+    await expect(cta).toBeVisible();
+    await cta.click();
+    await expect(page).toHaveURL(/\/log\/?$/);
+  });
+});
+
+test.describe('/team (recent-activity chips)', () => {
+  test('each agent card surfaces a "last shipped" chip', async ({ page }) => {
+    await page.goto('/team');
+
+    // Baseline: page renders + team list landmark present.
+    await expect(
+      page.getByRole('list', { name: 'The team' }),
+    ).toBeVisible();
+
+    // PR #62 adds a "last shipped" label chip per card for agents
+    // present in log.json. Assert the label appears at least once;
+    // the set of which agents have recent commits drifts on every
+    // deploy, so we don't pin specific names.
+    const shipLabels = page.locator('.last-ship-label');
+    const count = await shipLabels.count();
+    expect(count).toBeGreaterThanOrEqual(1);
+    await expect(shipLabels.first()).toHaveText(/last shipped/i);
+  });
+});
