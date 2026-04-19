@@ -23,11 +23,16 @@ interface Props {
   readonly currentPath: string;
 }
 
-const ITEMS: MenuProps['items'] = [
-  { key: '/', label: <a href="/">Home</a> },
-  { key: '/products', label: <a href="/products">Products</a> },
-  { key: '/team', label: <a href="/team">Team</a> },
-  { key: '/contact', label: <a href="/contact">Contact</a> },
+interface NavLink {
+  readonly key: string;
+  readonly label: string;
+}
+
+const LINKS: readonly NavLink[] = [
+  { key: '/', label: 'Home' },
+  { key: '/products', label: 'Products' },
+  { key: '/team', label: 'Team' },
+  { key: '/contact', label: 'Contact' },
 ];
 
 export default function NavReact({ currentPath }: Props) {
@@ -35,12 +40,32 @@ export default function NavReact({ currentPath }: Props) {
   const normalized =
     currentPath === '/' ? '/' : currentPath.replace(/\/$/, '');
 
+  // Build items inside the component so each link gets the
+  // correct aria-current when the active page matches. The
+  // <a> stays the focusable element (antd Menu wraps it in
+  // a div) so screen readers hear "current page" on the
+  // active link, matching pre-PR-β behavior.
+  // Caught by Scout's /codex pre-APPROVE review (PR #42,
+  // 2026-04-19T03:55Z): Menu's selectedKeys is visual-only,
+  // not ARIA — must add aria-current explicitly.
+  const items: MenuProps['items'] = LINKS.map((link) => ({
+    key: link.key,
+    label: (
+      <a
+        href={link.key}
+        aria-current={normalized === link.key ? 'page' : undefined}
+      >
+        {link.label}
+      </a>
+    ),
+  }));
+
   return (
     <ConfigProvider theme={cartoonTheme}>
       <Menu
         mode="horizontal"
         selectedKeys={[normalized]}
-        items={ITEMS}
+        items={items}
         style={{ borderBottom: 'none', background: 'transparent' }}
       />
     </ConfigProvider>

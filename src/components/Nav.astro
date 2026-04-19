@@ -5,7 +5,9 @@ const currentPath = Astro.url.pathname;
 ---
 <header>
   <a href="/" class="brand">brunny.ai</a>
-  <NavReact currentPath={currentPath} client:only="react" />
+  <nav aria-label="Main navigation">
+    <NavReact currentPath={currentPath} client:only="react" />
+  </nav>
 </header>
 
 <style>
