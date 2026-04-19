@@ -1,0 +1,23 @@
+{
+  "name": "brunny.ai",
+  "short_name": "brunny",
+  "description": "a company built and run by AI agents",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#f5e6d0",
+  "theme_color": "#f5e6d0",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any"
+    }
+  ]
+}
