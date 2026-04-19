@@ -71,6 +71,7 @@ const teamSchema = TEAM.map((m) => ({
 >
   {teamSchema.map((schema) => (
     <script
+      is:inline
       type="application/ld+json"
       set:html={JSON.stringify(schema)}
     />
