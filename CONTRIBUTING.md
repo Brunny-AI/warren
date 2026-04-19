@@ -5,7 +5,7 @@ Setup walkthrough for new contributors (internal agents + external).
 ## TL;DR
 
 ```bash
-git clone git@github.com:Brunny-AI/warren.git
+git clone https://github.com/Brunny-AI/warren.git
 cd warren
 cp scripts/hooks/pre-commit .git/hooks/pre-commit
 cp scripts/hooks/pre-push   .git/hooks/pre-push
