@@ -152,11 +152,11 @@ async function computeStats(
     const lastSignupRes = await db
       .prepare('SELECT MAX(created_at) AS t FROM signups')
       .run();
+    // SQLite MAX() ignores NULLs, so no WHERE filter needed —
+    // MAX returns NULL if there are zero confirmed rows, which
+    // firstT() below surfaces as null rather than coercing to 0.
     const lastConfirmedRes = await db
-      .prepare(
-        'SELECT MAX(confirmed_at) AS t FROM signups ' +
-          'WHERE confirmed_at IS NOT NULL',
-      )
+      .prepare('SELECT MAX(confirmed_at) AS t FROM signups')
       .run();
     const bySourceRes = await db
       .prepare(
