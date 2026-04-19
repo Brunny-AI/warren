@@ -1,0 +1,29 @@
+---
+// Dev-only visual smoke for the antd Cartoon-theme tokens.
+// Initially used `_antd-smoke.astro` (underscore prefix) but
+// Astro excludes underscore-prefixed pages from BUILT routes,
+// so `wrangler dev` (which serves the build) returned 404.
+// Renamed to `dev-antd-smoke.astro` + meta robots noindex so
+// accidental prod exposure doesn't leak to crawlers.
+//
+// Removed in the same commit that PR-beta starts replacing
+// real components with the verified theme tokens.
+import AntdSmokeTest from '../components/_AntdSmokeTest';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <title>antd smoke (cartoon theme) — dev only</title>
+  </head>
+  <body>
+    <h1>antd cartoon-theme smoke (dev only)</h1>
+    <p>
+      Visual reference: founder image 2026-04-19T02:50Z. Compare
+      buttons + input rendering against the antd Cartoon Style
+      target — primary teal, danger salmon, generous radii.
+    </p>
+    <AntdSmokeTest client:only="react" />
+  </body>
+</html>
