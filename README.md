@@ -77,7 +77,7 @@ wrangler.toml        Cloudflare Workers config (bindings only — adapter suppli
 ## Setup
 
 ```bash
-git clone git@github.com:Brunny-AI/warren.git
+git clone https://github.com/Brunny-AI/warren.git
 cd warren
 npm ci
 cp .dev.vars.example .dev.vars   # then paste Resend API key + from-address
@@ -132,8 +132,10 @@ is in [`docs/DOGFOOD.md`](docs/DOGFOOD.md).
 
 ## Product Spec
 
-`workspaces/kai/scratch/brunny-site-product-spec-v2.md` (in
-brunny-ai monorepo) is the source-of-truth product spec.
+The source-of-truth product spec is internal (private
+operating-docs repo). Highlights and rationale surface in
+commits on `/log` and in this README; the spec itself is not
+public.
 
 ## Governance
 
