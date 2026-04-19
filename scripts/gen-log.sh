@@ -35,6 +35,13 @@ for line in sys.stdin:
     if len(parts) != 3:
         continue
     sha, ts, subject = parts
+    # Scrub em-dash from commit subjects before shipping to /log.
+    # Per feedback_no_em_dashes rule: em-dashes are an AI fingerprint,
+    # banned from user-facing copy. Commit messages are internal,
+    # but historical subjects rendered publicly on /log inherit the
+    # rule. Sanitize once here; keeps log.astro a pure renderer.
+    subject = subject.replace(" — ", ". ").replace("—", ".")
+    subject = " ".join(subject.split())
     rows.append({"sha": sha, "tsIso": ts, "subject": subject})
 json.dump(rows, sys.stdout, indent=2)
 ' > "$OUT"

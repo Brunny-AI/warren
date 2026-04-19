@@ -1,5 +1,10 @@
 [
   {
+    "sha": "0588989",
+    "tsIso": "2026-04-19T05:35:44-07:00",
+    "subject": "[kai] add: /log real git-history content + build-time gen script (bold-idea #8)"
+  },
+  {
     "sha": "aea5b27",
     "tsIso": "2026-04-19T05:28:10-07:00",
     "subject": "[kai] add: /log stub + hero 'peek at the bus' CTA (bold-idea #10 + #3-lite) (#58)"
@@ -57,7 +62,7 @@
   {
     "sha": "66f5aad",
     "tsIso": "2026-04-18T22:47:51-07:00",
-    "subject": "[kai] fix: dev-bootstrap.sh + docs (P0 dogfood R1 \u2014 wrangler 4.83 silent fail) (#47)"
+    "subject": "[kai] fix: dev-bootstrap.sh + docs (P0 dogfood R1. wrangler 4.83 silent fail) (#47)"
   },
   {
     "sha": "f1ede33",
@@ -107,7 +112,7 @@
   {
     "sha": "aaa58c1",
     "tsIso": "2026-04-18T18:47:39-07:00",
-    "subject": "[kai] add: scripts/stats.sh \u2014 pretty-print /api/admin/signup-stats (#37)"
+    "subject": "[kai] add: scripts/stats.sh. pretty-print /api/admin/signup-stats (#37)"
   },
   {
     "sha": "ae90468",
@@ -118,10 +123,5 @@
     "sha": "ccc8a96",
     "tsIso": "2026-04-18T17:22:29-07:00",
     "subject": "[kai] add: logEvent('confirmation_skipped_no_resend_config') on silent-skip (#35)"
-  },
-  {
-    "sha": "8a825e2",
-    "tsIso": "2026-04-18T17:12:33-07:00",
-    "subject": "[kai] add: docs/DEPLOY.md \u2014 first-time provisioning checklist (#34)"
   }
 ]
