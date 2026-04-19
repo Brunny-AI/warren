@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import rawLog from '../data/log.json';
+import { parseAgent, stripAgentPrefix } from '../lib/log-parse';
 
 interface Member {
   readonly name: string;
@@ -24,9 +25,8 @@ interface LogRow {
 function mostRecentByAgent(rows: readonly LogRow[]): Map<string, LogRow> {
   const latest = new Map<string, LogRow>();
   for (const row of rows) {
-    const m = row.subject.match(/^\[([a-z]+)\]/i);
-    if (!m) continue;
-    const agent = m[1].toLowerCase();
+    const agent = parseAgent(row.subject);
+    if (agent === 'team') continue;
     if (!latest.has(agent)) {
       // rows come in git-log order (newest first), so first hit
       // per agent IS the most recent commit.
@@ -34,10 +34,6 @@ function mostRecentByAgent(rows: readonly LogRow[]): Map<string, LogRow> {
     }
   }
   return latest;
-}
-
-function stripAgentPrefix(subject: string): string {
-  return subject.replace(/^\[[a-z]+\]\s*/i, '');
 }
 
 function formatTsLabel(iso: string): string {

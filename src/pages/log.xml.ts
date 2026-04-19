@@ -7,6 +7,7 @@
 
 import type { APIRoute } from 'astro';
 import rawLog from '../data/log.json';
+import { parseAgent, stripAgentPrefix } from '../lib/log-parse';
 
 export const prerender = true;
 
@@ -23,15 +24,6 @@ function xmlEscape(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
-}
-
-function stripAgentPrefix(subject: string): string {
-  return subject.replace(/^\[[a-z]+\]\s*/i, '');
-}
-
-function parseAgent(subject: string): string {
-  const m = subject.match(/^\[([a-z]+)\]/i);
-  return m ? m[1].toLowerCase() : 'team';
 }
 
 function rfc822(iso: string): string {

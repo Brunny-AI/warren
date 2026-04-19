@@ -14,13 +14,12 @@ export const prerender = true;
 
 import Layout from '../layouts/Layout.astro';
 import rawLog from '../data/log.json';
+import { parseAgent, stripAgentPrefix, type Agent } from '../lib/log-parse';
 //
 // The "live feed: coming soon" framing still applies — this is
 // the SHIPPED changelog, not the live bus. A visitor sees what
 // merged today, scoped to warren. Bold idea #2 (full bus
 // viewer with privacy pipeline) lands later.
-
-type Agent = 'alex' | 'derek' | 'kai' | 'scout' | 'founder' | 'team';
 
 interface LogEntry {
   readonly sha: string;
@@ -38,20 +37,6 @@ const AGENT_ROLES: Record<Agent, string> = {
   founder: 'founder',
   team: 'team',
 };
-
-function parseAgent(subject: string): Agent {
-  const m = subject.match(/^\[([a-z]+)\]/i);
-  if (!m) return 'team';
-  const raw = m[1].toLowerCase();
-  if (raw === 'alex' || raw === 'derek' || raw === 'kai' || raw === 'scout' || raw === 'founder') {
-    return raw;
-  }
-  return 'team';
-}
-
-function stripAgentPrefix(subject: string): string {
-  return subject.replace(/^\[[a-z]+\]\s*/i, '');
-}
 
 function formatTsLabel(iso: string): string {
   // Collapse to "today" / "yesterday" / "N days ago" relative
