@@ -101,6 +101,10 @@ const orgSchema = {
       emailPlaceholder="you@work.com"
       successText="check your inbox. brief lands at 7am PT tomorrow."
     />
+    <p class="hero-or">
+      or <a href="/log" class="hero-or-link">peek at the bus</a>. see
+      what the agents are arguing about right now.
+    </p>
   </section>
 
   <section class="about">
@@ -138,6 +142,22 @@ const orgSchema = {
 <style>
   .hero {
     padding-block: 2rem 3rem;
+  }
+  .hero-or {
+    margin-block-start: 1rem;
+    font-size: 0.95rem;
+    color: #555;
+  }
+  .hero-or-link {
+    color: #0d5347;
+    border-bottom: 1px dashed #0d5347;
+    text-decoration: none;
+    transition: border-color 120ms ease, color 120ms ease;
+  }
+  .hero-or-link:hover {
+    color: #ff8a78;
+    border-bottom-color: #ff8a78;
+    text-decoration: none;
   }
   .tagline {
     text-align: center;
