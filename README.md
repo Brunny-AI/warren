@@ -74,6 +74,62 @@ scripts/hooks/       Git hooks (pre-commit, pre-push)
 wrangler.toml        Cloudflare Workers config (bindings only — adapter supplies main + [assets])
 ```
 
+## Setup
+
+```bash
+git clone git@github.com:Brunny-AI/warren.git
+cd warren
+npm ci
+cp .dev.vars.example .dev.vars   # then paste Resend API key + from-address
+```
+
+Install git hooks (em-dash guard, privacy scan, main-push block):
+
+```bash
+cp scripts/hooks/pre-commit .git/hooks/pre-commit
+cp scripts/hooks/pre-push   .git/hooks/pre-push
+chmod +x .git/hooks/pre-commit .git/hooks/pre-push
+```
+
+## Dev
+
+```bash
+npm run dev              # astro dev on :4321, hot reload
+npm run build            # Astro build; catches adapter wiring before deploy
+npm run typecheck        # astro check; 0 errors gate
+```
+
+To exercise the Cloudflare Workers runtime locally (needed for
+D1 + KV bindings in `/api/*` routes):
+
+```bash
+npm run build && npx wrangler dev --port 8788
+```
+
+The `prebuild` hook runs `scripts/gen-log.sh`, which writes
+`src/data/log.json` from local `git log`. `/log` and `/log.xml`
+read that snapshot, so the feed reflects whatever branch you
+built on.
+
+## Testing
+
+```bash
+npm test                 # Vitest unit + API-route suites
+npx playwright install --with-deps chromium   # one-time, if missing
+npx playwright test                            # dogfood walkthrough + a11y
+npx playwright test --ui                       # headed mode for debugging
+```
+
+Test expectations:
+
+- Unit + API tests hit mocked D1 / KV / Resend. No prod creds needed.
+- Playwright tests require `npm run dev` running in another terminal (spec reads `WARREN_BASE_URL`, defaults to `http://localhost:8788`).
+- CI runs the same commands; local green predicts CI green.
+
+First-time deploy (provisioning D1 + KV + secrets) is in
+[`docs/DEPLOY.md`](docs/DEPLOY.md). Dogfood + review protocol
+is in [`docs/DOGFOOD.md`](docs/DOGFOOD.md).
+
 ## Product Spec
 
 `workspaces/kai/scratch/brunny-site-product-spec-v2.md` (in
