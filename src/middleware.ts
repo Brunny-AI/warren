@@ -114,7 +114,44 @@ const BASELINE_HEADERS: Readonly<Record<string, string>> = {
   'Reporting-Endpoints': 'csp-endpoint="/api/csp-report"',
 };
 
-export const onRequest: MiddlewareHandler = async (_context, next) => {
+/**
+ * Bucket a User-Agent string into a coarse class. The point
+ * is NOT fingerprinting — it's knowing roughly who visits.
+ * Desktop / mobile / bot / unknown. Four buckets beats 1000
+ * distinct UA strings and is way below any privacy threshold.
+ */
+function uaBucket(ua: string): 'bot' | 'mobile' | 'desktop' | 'unknown' {
+  if (!ua) return 'unknown';
+  const lower = ua.toLowerCase();
+  if (/bot|crawl|spider|curl|wget|python|node|headlesschrome/i.test(lower)) {
+    return 'bot';
+  }
+  if (/mobile|iphone|android|ipad/i.test(lower)) return 'mobile';
+  if (/mozilla|safari|chrome|edge|firefox/i.test(lower)) return 'desktop';
+  return 'unknown';
+}
+
+/**
+ * Classify a referrer origin against the request host. Gives
+ * us direct / same-origin-nav / external / unknown without
+ * recording the actual referrer URL (which could be a privacy
+ * leak — e.g. a friend's shared-link with a query param).
+ */
+function referrerClass(
+  ref: string | null,
+  hostHeader: string | null,
+): 'direct' | 'same-origin' | 'external' | 'unknown' {
+  if (!ref) return 'direct';
+  try {
+    const refHost = new URL(ref).host;
+    if (hostHeader && refHost === hostHeader) return 'same-origin';
+    return 'external';
+  } catch {
+    return 'unknown';
+  }
+}
+
+export const onRequest: MiddlewareHandler = async (context, next) => {
   const response = await next();
 
   // Only set headers we don't already have. An upstream
@@ -124,6 +161,47 @@ export const onRequest: MiddlewareHandler = async (_context, next) => {
     if (!response.headers.has(key)) {
       response.headers.set(key, value);
     }
+  }
+
+  // Structured request log — one JSON line per request for
+  // Cloudflare Logs / logpush pipelines to aggregate. No
+  // cookies, no IP, no user-identifiable data. Just: what
+  // did visitors hit, from where, on what kind of device,
+  // and did it serve. Enough to answer "did shared links
+  // drive traffic" without building a tracking system.
+  //
+  // Scope cuts:
+  //   - No IP address (privacy + Cloudflare already captures
+  //     it upstream if ops need forensics).
+  //   - No user-agent string (we bucket it to 4 classes;
+  //     fingerprinting-lite is still fingerprinting).
+  //   - No full referrer URL (same-origin bit only, plus
+  //     external/direct/unknown classifier).
+  //   - Skipped for CSP violation reports to avoid log noise
+  //     (they're already their own logged channel).
+  try {
+    const url = new URL(context.request.url);
+    if (url.pathname !== '/api/csp-report') {
+      const bucket = uaBucket(context.request.headers.get('user-agent') ?? '');
+      const refClass = referrerClass(
+        context.request.headers.get('referer'),
+        context.request.headers.get('host'),
+      );
+      console.log(
+        JSON.stringify({
+          evt: 'request',
+          path: url.pathname,
+          method: context.request.method,
+          status: response.status,
+          ua_bucket: bucket,
+          ref: refClass,
+          ts: new Date().toISOString(),
+        }),
+      );
+    }
+  } catch {
+    // Logging must never break the response. If URL/header
+    // parsing fails for any reason, swallow and return.
   }
 
   return response;
