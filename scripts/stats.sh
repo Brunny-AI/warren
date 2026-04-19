@@ -29,7 +29,11 @@ if [[ -z "$TOKEN" ]]; then
   if command -v wrangler >/dev/null 2>&1; then
     # `wrangler secret get` is not universally available; fall
     # back to `secret list` + manual prompt if missing.
-    TOKEN="$(wrangler secret get ADMIN_TOKEN 2>/dev/null || true)"
+    # Strip trailing whitespace + newlines — wrangler prints a
+    # trailing LF that breaks `Authorization: Bearer <token>\n`
+    # auth when interpolated directly.
+    TOKEN="$(wrangler secret get ADMIN_TOKEN 2>/dev/null \
+      | tr -d '[:space:]' || true)"
   fi
 fi
 if [[ -z "$TOKEN" ]]; then
@@ -78,5 +82,12 @@ jq -r '
   ((.by_source | to_entries | length) as $n |
     if $n == 0 then "  (none yet)" else empty end),
   (.by_source | to_entries | sort_by(-.value) | .[] |
-    "  \(.key | . + (" " * (16 - length))) \(.value)")
+    # Pad key to at least 16 chars; clamp negative pad to 0
+    # so labels longer than 16 chars still render (no trailing
+    # column alignment for those rows — acceptable).
+    .key as $k |
+    (if ($k | length) < 16
+     then $k + (" " * (16 - ($k | length)))
+     else $k + " " end) as $padded |
+    "  \($padded) \(.value)")
 ' "$TMP"
