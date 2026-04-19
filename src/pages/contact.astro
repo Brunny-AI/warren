@@ -14,7 +14,7 @@ const SOCIAL = [
 const signupParam = Astro.url.searchParams.get('signup');
 const initialStatus: SignupStatus =
   signupParam === 'saved'
-    ? { text: "check your email to confirm — we sent a link.", kind: 'ok' }
+    ? { text: 'check your email to confirm. we sent a link.', kind: 'ok' }
     : signupParam === 'confirmed'
       ? { text: "you're on the list. we'll email when something ships.", kind: 'ok' }
       : signupParam === 'invalid'
@@ -30,17 +30,50 @@ const initialStatus: SignupStatus =
                 : null;
 ---
 <Layout
-  title="Contact — brunny.ai"
+  title="Contact | brunny.ai"
   description="say hi, follow along, get notified"
 >
-  <section>
-    <h2>say hi</h2>
-    <p>
-      <a href="mailto:info@brunny.ai">info@brunny.ai</a>
-    </p>
+  <h1>contact</h1>
+  <p class="lede">say hi, follow along, or get notified when we ship.</p>
+
+  <section class="lanes" aria-label="Contact lanes">
+    <article class="lane">
+      <h2>Brief feedback</h2>
+      <p>
+        tell us what's useful, what's noise, what you wish we covered.
+        <a href="mailto:info@brunny.ai?subject=Brief%20feedback">info@brunny.ai</a>
+      </p>
+    </article>
+
+    <article class="lane">
+      <h2>press</h2>
+      <p>
+        working on a story about AI-native companies?
+        <a href="mailto:info@brunny.ai?subject=press">info@brunny.ai</a>
+        with "press" in the subject.
+      </p>
+    </article>
+
+    <article class="lane">
+      <h2>hiring (sort of)</h2>
+      <p>
+        not hiring humans yet, sorry. if you build agents and want
+        to compare notes,
+        <a href="mailto:info@brunny.ai?subject=agents">drop a line</a>.
+      </p>
+    </article>
+
+    <article class="lane">
+      <h2>general</h2>
+      <p>
+        everything else:
+        <a href="mailto:info@brunny.ai">info@brunny.ai</a>. a human
+        reads every one.
+      </p>
+    </article>
   </section>
 
-  <section>
+  <section class="follow" aria-label="Follow along">
     <h2>follow along</h2>
     <ul class="social">
       {SOCIAL.map((s) => (
@@ -49,23 +82,68 @@ const initialStatus: SignupStatus =
     </ul>
   </section>
 
-  <section>
+  <section class="transparency" aria-label="Transparency">
+    <h2>watch us work</h2>
+    <p>
+      the agents run on a bus. every message, every decision,
+      every meeting is logged. we're opening a public view on
+      the bus and the daily activity log so you can see the work
+      as it happens, not just the ship notes.
+    </p>
+    <p class="fine-print">public view: coming soon.</p>
+  </section>
+
+  <section class="signup" aria-label="Launch notifications">
     <h2>stay updated</h2>
-    <p>get notified when we launch something new.</p>
-    <SignupForm id="contact-signup" source="contact" initialStatus={initialStatus} />
-    <p class="disclaimer">
+    <p>get notified when we ship something new.</p>
+    <SignupForm
+      id="contact-signup"
+      source="contact"
+      initialStatus={initialStatus}
+    />
+    <p class="fine-print">
       no spam. we're too busy building.
     </p>
   </section>
 </Layout>
 
 <style>
+  h1 {
+    font-size: 2.5rem;
+    margin-block-end: 0.5rem;
+  }
+  .lede {
+    font-size: 1.2rem;
+    color: #555;
+    margin-block-end: 3rem;
+  }
   section {
     margin-block-end: 3rem;
   }
   h2 {
-    font-size: 1.5rem;
-    margin-block-end: 0.75rem;
+    font-size: 1.3rem;
+    margin-block-end: 0.5rem;
+    color: #0d5347;
+  }
+  .lanes {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+  .lane {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    transition: border-color 120ms ease;
+  }
+  .lane:hover {
+    border-color: #ff8a78;
+  }
+  .lane p {
+    margin: 0;
+    color: #333;
+    font-size: 0.95rem;
   }
   .social {
     list-style: none;
@@ -74,8 +152,12 @@ const initialStatus: SignupStatus =
     gap: 1.5rem;
     flex-wrap: wrap;
   }
-  .disclaimer {
-    color: #999;
+  .transparency p {
+    color: #333;
+  }
+  .fine-print {
+    color: #777;
     font-size: 0.9rem;
+    margin-block-start: 0.75rem;
   }
 </style>

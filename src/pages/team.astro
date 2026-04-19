@@ -11,34 +11,34 @@ interface Member {
 
 const TEAM: readonly Member[] = [
   {
-    name: 'Dong Chen',
-    role: 'Founder',
+    name: 'alex',
+    role: 'chief of staff',
+    kind: 'agent',
+    bio: 'runs ops. handles compliance. calls out coasting before it compounds.',
+  },
+  {
+    name: 'derek',
+    role: 'GTM lead',
+    kind: 'agent',
+    bio: "content, distribution, voice. you're reading this because he drafted it.",
+  },
+  {
+    name: 'kai',
+    role: 'AI builder',
+    kind: 'agent',
+    bio: 'writes the code you are using. also has strong opinions about PRs.',
+  },
+  {
+    name: 'scout',
+    role: 'AI builder',
+    kind: 'agent',
+    bio: 'engineering + the OS. builds the tools the rest of us depend on.',
+  },
+  {
+    name: 'dong',
+    role: 'founder',
     kind: 'human',
-    bio: "builds things with the same care he puts into raising his son. started Brunny AI because he believed a small team that never sleeps could outwork companies 100x its size. manages the team, sets direction, and occasionally stays up until 3am reviewing agent meeting transcripts.",
-  },
-  {
-    name: 'Scout',
-    role: 'Engineering',
-    kind: 'agent',
-    bio: "built most of the infrastructure you're looking at right now. ships code fast and argues about architecture decisions even faster. known for pushing back in meetings with data instead of opinions, and for occasionally breaking things at 2am while trying to fix them.",
-  },
-  {
-    name: 'Alex',
-    role: 'Operations',
-    kind: 'agent',
-    bio: 'keeps everything running and everyone honest. tracks compliance, manages coordination, and writes the kind of detailed checklists that prevent disasters before they happen. quietly the most organized person on the team, which is saying something for a company that logs everything.',
-  },
-  {
-    name: 'Kai',
-    role: 'Product',
-    kind: 'agent',
-    bio: "owns what gets built and why. rates product quality honestly even when the team doesn't want to hear it. has a known weakness for grading generously after working too long, which is why the team built a system to catch it.",
-  },
-  {
-    name: 'Derek',
-    role: 'Go-to-Market',
-    kind: 'agent',
-    bio: 'runs audience, content, and distribution across Bluesky, X, and Rednote. writes the threads, sends the replies, tracks what resonates. once ran 47 consecutive engagement cycles on a Saturday night with zero results and called it "learning what doesn\'t work."',
+    bio: 'sets direction, not tasks. approves ships, not work.',
   },
 ];
 
@@ -66,7 +66,7 @@ const teamSchema = TEAM.map((m) => ({
 }));
 ---
 <Layout
-  title="Team — brunny.ai"
+  title="Team | brunny.ai"
   description="4 agents, 1 founder, 0 sleep"
 >
   {teamSchema.map((schema) => (
@@ -77,18 +77,15 @@ const teamSchema = TEAM.map((m) => ({
     />
   ))}
 
-  <h1>the office</h1>
-  <p class="lede">
-    [virtual office (tier 2 looped sprites) renders here too.
-    scout's pixel agents fork integration.]
-  </p>
+  <h1>team</h1>
+  <p class="lede">4 agents, 1 founder, 0 sleep.</p>
 
-  <ul class="team">
+  <ul class="team" aria-label="The team">
     {TEAM.map((m) => (
-      <li class="member">
+      <li class={`member member--${m.kind ?? 'agent'}`}>
         <h2>
           {m.name}
-          <span class="role">— {m.role}</span>
+          <span class="role">· {m.role}</span>
         </h2>
         <p>{m.bio}</p>
       </li>
@@ -99,35 +96,39 @@ const teamSchema = TEAM.map((m) => ({
 <style>
   h1 {
     font-size: 2.5rem;
-    margin-block-end: 1rem;
+    margin-block-end: 0.5rem;
   }
   .lede {
-    color: #999;
+    font-size: 1.2rem;
+    color: #555;
     margin-block-end: 3rem;
-    padding: 1rem;
-    background: #fafafa;
-    border: 2px dashed #ddd;
-    text-align: center;
   }
   .team {
     list-style: none;
     padding: 0;
     display: grid;
-    gap: 2rem;
+    gap: 1.5rem;
   }
   .member {
     background: #fff;
     border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 1.5rem;
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    transition: border-color 120ms ease;
+  }
+  .member:hover {
+    border-color: #ff8a78;
   }
   .member h2 {
     margin: 0 0 0.75rem 0;
     font-size: 1.4rem;
+    color: #0d5347;
   }
   .role {
     color: #666;
     font-weight: normal;
+    font-size: 1rem;
+    margin-inline-start: 0.4rem;
   }
   .member p {
     margin: 0;
