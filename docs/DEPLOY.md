@@ -78,7 +78,10 @@ wrangler secret put RESEND_FROM_ADDRESS
 # (sender domain must be verified in Resend dashboard first)
 
 wrangler secret put ADMIN_TOKEN
-# paste: <32+ char random string — used for /api/admin/*>
+# Generate a 32-byte token (paste the output when prompted):
+#   openssl rand -hex 32
+# (32 bytes hex = 64 chars; well above the 32-char floor.)
+# Used for Authorization: Bearer <token> on /api/admin/*.
 ```
 
 **Verify:**

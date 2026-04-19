@@ -25,12 +25,12 @@ const CSP_DIRECTIVES: Readonly<Record<string, readonly string[]>> = {
   // inline submit handler and Astro's client-directive
   // bootstrap. Nonce-based CSP is the right long-term answer
   // but needs SSR nonce plumbing per render — a separate PR.
-  'script-src': ["'self'", "'unsafe-inline'"],
+  'script-src': ["'self'", "'unsafe-inline' /* TODO(post-launch-csp-nonces) */"],
 
   // Styles: Astro's scoped `<style>` blocks compile to inline
-  // <style> tags. 'unsafe-inline' unavoidable until Astro
+  // <style> tags. 'unsafe-inline' /* TODO(post-launch-csp-nonces) */ unavoidable until Astro
   // supports nonce-based style injection.
-  'style-src': ["'self'", "'unsafe-inline'"],
+  'style-src': ["'self'", "'unsafe-inline' /* TODO(post-launch-csp-nonces) */"],
 
   // Images: self + inline base64 (favicon uses data: URI in
   // SVG format). No remote image hosts today.
@@ -101,7 +101,7 @@ const BASELINE_HEADERS: Readonly<Record<string, string>> = {
 
   // Content Security Policy. Structured in CSP_DIRECTIVES
   // above so each directive + rationale lives next to the
-  // sources it allows. 'unsafe-inline' on script-src +
+  // sources it allows. 'unsafe-inline' /* TODO(post-launch-csp-nonces) */ on script-src +
   // style-src is an acknowledged gap — nonce-based CSP
   // requires SSR plumbing per render, follow-up PR.
   'Content-Security-Policy': _buildCsp(CSP_DIRECTIVES),
