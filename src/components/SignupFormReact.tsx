@@ -52,7 +52,12 @@ export default function SignupFormReact({
         },
         body: JSON.stringify({ email: values.email, source }),
       });
+      // /api/signup returns { error: '...' } on failure (4xx/5xx)
+      // and { ok: true, ... } on success — see src/pages/api/signup.ts.
+      // Read both fields to surface backend-provided messaging when
+      // present; fall back to generic copy otherwise.
       const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
         message?: string;
       };
       if (res.ok) {
@@ -63,7 +68,7 @@ export default function SignupFormReact({
         });
       } else {
         setStatus({
-          text: data.message ?? 'signup failed. try again in a moment?',
+          text: data.error ?? 'signup failed. try again in a moment?',
           kind: 'err',
         });
       }
@@ -91,6 +96,30 @@ export default function SignupFormReact({
         action="/api/signup"
         method="post"
       >
+        {/* Visually-hidden <label for> preserves the explicit
+            label-for-input semantic. aria-label on Input alone
+            loses the screen-reader-native label association.
+            Per pre-pr-peer-review.md a11y-parity rule. Inline
+            sr-only styles since no global utility class exists
+            in this repo (the vanilla SignupForm.astro referenced
+            a .visually-hidden class that wasn't defined — latent
+            a11y gap; not propagating). */}
+        <label
+          htmlFor={`${id}-email`}
+          style={{
+            position: 'absolute',
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: 'hidden',
+            clip: 'rect(0,0,0,0)',
+            whiteSpace: 'nowrap',
+            border: 0,
+          }}
+        >
+          email
+        </label>
         <input type="hidden" name="source" value={source} />
         <Form.Item
           name="email"
