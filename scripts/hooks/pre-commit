@@ -25,9 +25,16 @@ fi
 # Em-dash guard on staged user-facing files.
 # Per feedback_no_em_dashes rule: em-dashes (—, ——) are an AI
 # fingerprint, banned from published content. Source files under
-# src/ (Astro pages, layouts, components) and docs/ ship to
-# visitors; commit messages + code comments are internal and
-# exempt.
+# src/ (Astro pages, layouts, components), docs/ (repo docs),
+# and root-level README.md + CONTRIBUTING.md + CLAUDE.md (these
+# render on GitHub and land in external-contributor eyes) all
+# ship to readers. Commit messages + code comments + non-scoped
+# markdown (e.g. migrations/*.md, scratch/*.md) stay internal.
+#
+# Root scope is enumerated (not '*.md' wildcard) because git
+# pathspec '*.md' crosses directory boundaries and pulls in
+# scratch/internal markdown. Add new root-level user-facing
+# *.md files to the pathspec list when needed.
 #
 # Scans `git diff --cached` for em-dash additions in scope files.
 # If the line is inside a // or /* ... */ comment, skip. Non-
@@ -35,7 +42,7 @@ fi
 # as the override path for intentional exceptions.
 dash_hits=$(
   git diff --cached --no-color --unified=0 --diff-filter=AM \
-    -- 'src/**' 'docs/**' \
+    -- 'src/**' 'docs/**' 'README.md' 'CONTRIBUTING.md' 'CLAUDE.md' \
     | awk '
       /^\+\+\+ / { file=$2; sub("^b/", "", file); next }
       /^@@ / { in_hunk=1; next }
