@@ -13,11 +13,13 @@ export const prerender = true;
 // is five pages; adding `@astrojs/sitemap` for this scale is
 // dependency cost without payoff. When the page count grows
 // past ~10 or dynamic routes appear, swap for the integration.
+// /tools dropped per scout 02:58Z (no content yet) + alex's R1
+// finding: SEO crawlers were hitting 302 -> noise. Re-add the row
+// when /tools has actual content + is back in the nav.
 const ROUTES: readonly { path: string; priority: string }[] = [
   { path: '/', priority: '1.0' },
   { path: '/products', priority: '0.9' },
   { path: '/team', priority: '0.7' },
-  { path: '/tools', priority: '0.6' },
   { path: '/contact', priority: '0.6' },
 ];
 

@@ -1,12 +1,34 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import VirtualOffice from '../components/VirtualOffice.astro';
+import SignupForm from '../components/SignupForm.astro';
 
+// /tools dropped from card grid for v1 per scout 02:58Z (no
+// content yet); also dropped from sitemap.xml.ts ROUTES per
+// alex's R1 finding (SEO crawlers were hitting 302 -> noise).
+// Re-add when /tools has actual content.
 const CARDS = [
-  { href: '/products', label: 'Products', blurb: "things we're building. one of them is out." },
+  { href: '/products', label: 'Products', blurb: 'Brief: daily AI signal, live now. warren and agent-os incubating.' },
   { href: '/team', label: 'Team', blurb: '4 agents, 1 founder, 0 sleep' },
-  { href: '/tools', label: 'Tools', blurb: 'the anti-coasting system' },
 ];
+
+// Initial signup status from query param (?signup=saved/error/etc) —
+// host page reads + passes to SignupForm so the React island can
+// pre-render with status text on the no-JS path.
+type SignupStatus = { text: string; kind: 'ok' | 'err' } | null;
+const signupParam = Astro.url.searchParams.get('signup');
+const initialStatus: SignupStatus =
+  signupParam === 'saved'
+    ? { text: 'check your inbox. brief lands at 7am PT tomorrow.', kind: 'ok' }
+    : signupParam === 'invalid'
+      ? { text: 'invalid email format. try again?', kind: 'err' }
+      : signupParam === 'missing'
+        ? { text: 'email required. try again?', kind: 'err' }
+        : signupParam === 'error'
+          ? { text: 'signup failed. try again in a moment?', kind: 'err' }
+          : signupParam === 'rate_limited'
+            ? { text: 'too many attempts. try again in an hour.', kind: 'err' }
+            : null;
 
 // schema.org Organization structured data — lets search
 // engines + knowledge-graph crawlers index us as an
@@ -41,17 +63,33 @@ const orgSchema = {
   />
 
   <section class="hero">
-    <VirtualOffice />
-    <p class="tagline">meet the team that never sleeps</p>
+    <h1 class="hero-title">AI signal, shipped daily.</h1>
+    <p class="hero-sub">
+      six sources scored every morning, top signal in a
+      2-minute read.
+    </p>
+    <SignupForm
+      id="hero-signup"
+      source="home"
+      submitLabel="get the brief"
+      initialStatus={initialStatus}
+    />
   </section>
 
   <section class="about">
     <p>
-      Brunny AI is a company built and run by AI agents. four
-      of them work here 24/7, building products, arguing in
-      meetings, and occasionally producing something useful.
+      Brief is the product we ship today. warren (this site)
+      and agent-os are the scaffolding we built to ship it.
+      both incubating, both dogfooded by the team that runs
+      brunny.ai.
     </p>
-    <p>the founder sets direction. the agents ship.</p>
+    <p>the founder sets direction. four AI agents do the
+      work, 24/7, on the bus you can read.</p>
+  </section>
+
+  <section class="virtual-office">
+    <VirtualOffice />
+    <p class="tagline">meet the team that never sleeps</p>
   </section>
 
   <section class="cards">
