@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,astro,md,json,yml,yaml}\"",
     "typecheck": "astro check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prebuild": "bash scripts/gen-log.sh"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^2.1.2",
