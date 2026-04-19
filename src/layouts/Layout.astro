@@ -76,6 +76,16 @@ const ogImage = Astro.site
    * single-source-of-truth lives in theme.ts but raw CSS
    * can't import .ts at runtime so values duplicate here.
    */
+  html {
+    /* Offset scroll-into-view + anchor jumps by approx header
+       height so targets don't land under the <header>. Nav
+       header box is ~4rem tall (1rem padding-block + ~2rem
+       link content). Fixes the playwright walkthrough regression
+       where Chrome's scrollIntoView placed nav-link-click targets
+       overlapping the header's geometry. Cheap defense-in-depth
+       for any future sticky/fixed-header refactor too. */
+    scroll-padding-top: 4rem;
+  }
   html,
   body {
     margin: 0;
