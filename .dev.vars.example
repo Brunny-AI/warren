@@ -1,0 +1,32 @@
+# Local dev secrets for `wrangler dev`. Copy to .dev.vars and
+# fill in values. The .dev.vars file is gitignored so your
+# real secrets never land in the repo.
+#
+#   cp .dev.vars.example .dev.vars
+#   # then edit .dev.vars with real values
+#
+# Production secrets live in `wrangler secret` (not here).
+# See docs/DEPLOY.md "secrets" section for the full provisioning
+# flow + rotation protocol.
+
+# Resend transactional email API key. Used by /api/signup to
+# send confirmation emails. When unset, signup falls through
+# to DB-only (OK for smoke testing / dogfood, NOT for prod).
+# Get a dev key at https://resend.com/api-keys and prefix with
+# "re_".
+RESEND_API_KEY=
+
+# Reply-to address for confirmation emails. Must be verified
+# in the Resend dashboard. In local dev any address is fine —
+# emails still go through Resend's sandbox for dev keys.
+RESEND_FROM_ADDRESS=info@brunny.ai
+
+# Shared secret for /api/admin/* endpoints (signup-stats etc).
+# Generate a random 32+ char value for local dev — anything
+# long enough to prove caller intent. When unset, admin
+# endpoints return 503 (honest "not provisioned") NOT 401
+# (denied). This is intentional: the R1 round-trip dogfood
+# surfaced the distinction as a compliance signal.
+#
+# Example: openssl rand -hex 32
+ADMIN_TOKEN=

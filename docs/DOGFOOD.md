@@ -18,12 +18,20 @@ If you already have a warren clone, `cd` into it instead and `git pull origin ma
 First-time bootstrap (creates the local D1 schema — required, runs once per fresh clone):
 
 ```bash
+cp .dev.vars.example .dev.vars   # fill in local dev secrets
 ./scripts/dev-bootstrap.sh
 ```
 
-If you skip this step, `POST /api/signup` returns 500 because the
-`signups` table doesn't exist. The script handles a wrangler 4.83.0
-gotcha; see `docs/DEPLOY.md` Troubleshooting if it fails.
+`.dev.vars.example` lists the optional secrets (`RESEND_API_KEY`,
+`ADMIN_TOKEN`). Leave a key empty to exercise the "not provisioned"
+path for that feature — admin endpoints return 503 (not 401),
+signup DB-only falls through (Resend skipped). Full provisioning
+protocol in `docs/DEPLOY.md`.
+
+If you skip the bootstrap step, `POST /api/signup` returns 500
+because the `signups` table doesn't exist. The script handles a
+wrangler 4.83.0 gotcha; see `docs/DEPLOY.md` Troubleshooting if
+it fails.
 
 Then in one terminal, start the local server:
 
