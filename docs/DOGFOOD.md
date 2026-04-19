@@ -15,7 +15,17 @@ If you already have a warren clone, `cd` into it instead and `git pull origin ma
 
 ## Run
 
-In one terminal, start the local server:
+First-time bootstrap (creates the local D1 schema — required, runs once per fresh clone):
+
+```bash
+./scripts/dev-bootstrap.sh
+```
+
+If you skip this step, `POST /api/signup` returns 500 because the
+`signups` table doesn't exist. The script handles a wrangler 4.83.0
+gotcha; see `docs/DEPLOY.md` Troubleshooting if it fails.
+
+Then in one terminal, start the local server:
 
 ```bash
 npx wrangler dev --port 8788

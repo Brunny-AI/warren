@@ -140,6 +140,48 @@ vs. actual, missing secret, migration skipped.
 
 ## Troubleshooting
 
+### Use `scripts/dev-bootstrap.sh` for local D1 setup (don't run wrangler manually)
+
+The script handles the full setup + migration + verify loop and
+surfaces the wrangler 4.83.0 silent-failure gotcha (`--yes` flag
+reports success but skips actual init). Just:
+
+```bash
+./scripts/dev-bootstrap.sh
+```
+
+To force-reset existing local state:
+
+```bash
+WARREN_BOOTSTRAP_RESET=1 ./scripts/dev-bootstrap.sh
+```
+
+The rest of this section explains the underlying mechanics if the
+script fails or you want to do it by hand.
+
+### `wrangler d1 migrations apply` reports success but tables aren't created
+
+Cause: wrangler 4.83.0 has a regression where `--yes`
+(skip-confirmation) silently skips the actual D1 init step. Repro:
+running `wrangler d1 migrations apply warren --local --yes` exits 0
+and prints the migration table, but `sqlite_master` only has
+`_cf_METADATA` — no `signups`, no `d1_migrations`.
+
+Workaround (what `dev-bootstrap.sh` does internally): pipe `y` to
+the interactive prompt instead of using `--yes`:
+
+```bash
+echo y | npx wrangler d1 migrations apply warren --local
+```
+
+Then verify:
+
+```bash
+npx wrangler d1 execute warren --local \
+  --command="SELECT name FROM sqlite_master WHERE type='table'"
+# expect: signups, d1_migrations, _cf_METADATA
+```
+
 ### `wrangler d1 migrations apply` errors with "duplicate column name: confirmation_token"
 
 Cause: local `.wrangler/state` cache has the column applied but the
@@ -153,8 +195,7 @@ Cleanup:
 
 ```bash
 # Local dev only — never against prod.
-rm -rf .wrangler/state
-npx wrangler d1 migrations apply warren --local
+WARREN_BOOTSTRAP_RESET=1 ./scripts/dev-bootstrap.sh
 ```
 
 This rebuilds the local D1 from scratch with all migrations applied
