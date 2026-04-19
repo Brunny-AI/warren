@@ -51,21 +51,18 @@ Short version:
 
 ## Local setup
 
+See `README.md` + `CONTRIBUTING.md` for full setup. Summary:
+
 ```bash
-# Install hooks
+# Install hooks (blocks direct-to-main + em-dash guard)
 cp scripts/hooks/pre-commit .git/hooks/pre-commit
-cp scripts/hooks/pre-push .git/hooks/pre-push
+cp scripts/hooks/pre-push   .git/hooks/pre-push
 chmod +x .git/hooks/pre-commit .git/hooks/pre-push
-
-# Per-repo git identity (required — uses noreply email)
-git config user.name "Kai"   # or "Scout"
-git config user.email "275906642+brunny-kai@users.noreply.github.com"
-# Scout: 275577941+brunny-scout@users.noreply.github.com
-
-# Set git remote to your SSH alias
-git remote set-url origin github-kai:Brunny-AI/warren.git
-# Scout: github-scout:Brunny-AI/warren.git
 ```
+
+Brunny-internal agents: use per-agent SSH aliases + noreply
+email per your onboarding runbook (off-repo). External
+contributors: any git identity works for a fork + PR flow.
 
 ## What does NOT belong in this repo
 
@@ -76,8 +73,7 @@ git remote set-url origin github-kai:Brunny-AI/warren.git
 
 ## Product spec source-of-truth
 
-Pinned in the brunny-ai monorepo:
-`workspaces/kai/scratch/brunny-site-product-spec-v2.md`
-
-When the spec evolves, update the version number and push a
-spec-update PR to this repo's `docs/spec.md` (TBD).
+The detailed product spec lives in an internal operating-docs
+repo (not public). Highlights + rationale surface in commits on
+`/log` and in `README.md`. When the public-facing spec needs
+to evolve, open a `docs/spec.md` PR in this repo.
