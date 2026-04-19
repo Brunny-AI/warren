@@ -82,19 +82,17 @@ async function callGet(opts: CallOpts = {}): Promise<Response> {
     { method: 'GET', headers },
   );
 
-  const locals = {
-    runtime: {
-      env: {
-        DB: opts.db as unknown as D1Database,
-        ADMIN_TOKEN: opts.adminToken,
-      },
-      ctx: { waitUntil: vi.fn() },
-    },
+  // Astro v6: handler reads `env` from cloudflare:workers (mocked
+  // via vitest.setup.ts → globalThis.__mockEnv) instead of
+  // locals.runtime.env.
+  globalThis.__mockEnv = {
+    DB: opts.db as unknown as D1Database,
+    ADMIN_TOKEN: opts.adminToken,
   };
 
   const ctx = {
     request,
-    locals,
+    locals: {},
   } as unknown as Parameters<typeof GET>[0];
 
   return GET(ctx);

@@ -1,4 +1,10 @@
 import type { APIRoute } from 'astro';
+// Astro v6 + @astrojs/cloudflare 13: locals.runtime.env was
+// removed; bindings are now imported from cloudflare:workers.
+// ctx for waitUntil moved to locals.cfContext. The legacy
+// paths throw at runtime even though they remain typed in
+// App.Locals.
+import { env } from 'cloudflare:workers';
 import { isValidEmail, normalizeEmail } from '../../lib/email';
 import { logEvent } from '../../lib/log';
 import { checkRateLimit } from '../../lib/rate-limit';
@@ -64,7 +70,6 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   // strips any client-supplied value, so it's trusted in this
   // runtime. Local dev / tests without the header key under
   // 'unknown' (still gives a bounded bucket).
-  const env = locals.runtime?.env;
   const clientIp =
     request.headers.get('cf-connecting-ip') ?? 'unknown';
   const rl = await checkRateLimit(env?.RATE_LIMIT, {
@@ -96,7 +101,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
       : json({ error: 'invalid email format' }, 400);
   }
 
-  const ctx = locals.runtime?.ctx;
+  const ctx = locals.cfContext;
 
   const { outcome, token } = await insertSignup(env?.DB, email, source);
 

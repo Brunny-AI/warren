@@ -1,4 +1,7 @@
 import type { APIRoute } from 'astro';
+// Astro v6 + @astrojs/cloudflare 13: bindings via cloudflare:workers.
+// See src/pages/api/signup.ts for context on the migration.
+import { env } from 'cloudflare:workers';
 import { logEvent } from '../../lib/log';
 
 export const prerender = false;
@@ -16,7 +19,7 @@ type ConfirmOutcome =
   | 'db-error'
   | 'no-binding';
 
-export const GET: APIRoute = async ({ url, redirect, locals }) => {
+export const GET: APIRoute = async ({ url, redirect }) => {
   const token = (url.searchParams.get('token') ?? '').toLowerCase();
 
   if (!TOKEN_RE.test(token)) {
@@ -24,7 +27,7 @@ export const GET: APIRoute = async ({ url, redirect, locals }) => {
     return redirect('/products?signup=invalid_token', 303);
   }
 
-  const db = locals.runtime?.env?.DB;
+  const db = env?.DB;
   const outcome = await confirmToken(db, token);
 
   logEvent(`confirm.${outcome}`);

@@ -80,22 +80,20 @@ async function callPost(opts: CallOpts = {}): Promise<{
     return new Response(null, { status, headers: { location: url } });
   });
 
-  const locals = {
-    runtime: {
-      env: {
-        DB: opts.db as unknown as D1Database,
-        RATE_LIMIT: opts.kv,
-        RESEND_API_KEY: opts.resendKey,
-        RESEND_FROM_ADDRESS: opts.resendFrom,
-      },
-      ctx: { waitUntil: vi.fn() },
-    },
+  // Astro v6: handler reads `env` from cloudflare:workers (mocked
+  // via vitest.setup.ts → globalThis.__mockEnv) instead of
+  // locals.runtime.env. ctx (waitUntil) moved to locals.cfContext.
+  globalThis.__mockEnv = {
+    DB: opts.db as unknown as D1Database,
+    RATE_LIMIT: opts.kv,
+    RESEND_API_KEY: opts.resendKey,
+    RESEND_FROM_ADDRESS: opts.resendFrom,
   };
 
   const ctx = {
     request,
     redirect: redirectSpy,
-    locals,
+    locals: { cfContext: { waitUntil: vi.fn() } },
   } as unknown as Parameters<typeof POST>[0];
 
   const response = await POST(ctx);

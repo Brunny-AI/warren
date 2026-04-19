@@ -14,6 +14,10 @@ const unitProject = defineConfig({
     include: ['tests/**/*.test.ts'],
     exclude: ['tests/integration/**'],
     environment: 'node',
+    // Mocks `cloudflare:workers` virtual module so handler files
+    // resolve under node. Per-test env injection via
+    // globalThis.__mockEnv. See vitest.setup.ts for context.
+    setupFiles: ['./vitest.setup.ts'],
   },
 });
 
